@@ -12,6 +12,8 @@ public class UserResponseDto {
 
     private String avatar;
 
+    private Date created_at;
+
     private Date inative_at;
 
     public Long getId() {
@@ -44,6 +46,14 @@ public class UserResponseDto {
 
     public void setAvatar(String avatar) {
         this.avatar = avatar;
+    }
+
+    public Date getCreated_at() {
+        return created_at;
+    }
+
+    public void setCreated_at(Date created_at) {
+        this.created_at = created_at;
     }
 
     public Date getInative_at() {

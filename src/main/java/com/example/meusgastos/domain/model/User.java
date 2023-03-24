@@ -13,8 +13,10 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 
 @Entity
+@Table(name = "users")
 public class User implements UserDetails {
 
     @Id
@@ -22,6 +24,7 @@ public class User implements UserDetails {
     @Column(name = "user_id")
     private long id;
 
+    @Column(nullable = false)
     private String name;
 
     @Column(nullable = false, unique = true)
