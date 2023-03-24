@@ -1,0 +1,17 @@
+# server.port ->
+spring.datasource.url=
+spring.datasource.username=
+spring.datasource.password=
+spring.datasource.driver-class-name=
+
+# use only on enviroment, otherwise remove
+spring.jpa.hibernate.ddl-auto=update
+
+# will show the queries from hibernate on terminal
+spring.jpa.show-sql=true
+
+# JWT
+auth.jwt.secret=
+
+#Expiration in milliseconds --- 150000 --> 2.5 minutes
+auth.jwt.expiration=150000
