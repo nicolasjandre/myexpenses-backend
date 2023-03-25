@@ -15,7 +15,7 @@ import io.jsonwebtoken.security.Keys;
 
 @Component
 public class JwtUtil {
-    
+
     @Value("${auth.jwt.secret}")
     private String jwtSecret;
 
@@ -23,21 +23,21 @@ public class JwtUtil {
     private Long jwtExpiration;
 
     public String generateToken(Authentication auth) {
-        
-        Date expirationDate = new Date( new Date().getTime() + jwtExpiration);
-        
+
+        Date expirationDate = new Date(new Date().getTime() + jwtExpiration);
+
         User user = (User) auth.getPrincipal();
 
         try {
-        
+
             Key jwtsKey = Keys.hmacShaKeyFor(jwtSecret.getBytes("UTF-8"));
 
             return Jwts.builder()
-                .setSubject(user.getEmail())
-                .setIssuedAt(new Date())
-                .setExpiration(expirationDate)
-                .signWith(jwtsKey)
-                .compact();
+                    .setSubject(user.getEmail())
+                    .setIssuedAt(new Date())
+                    .setExpiration(expirationDate)
+                    .signWith(jwtsKey)
+                    .compact();
 
         } catch (Exception e) {
             System.out.println(e.getLocalizedMessage());
@@ -50,7 +50,7 @@ public class JwtUtil {
         try {
 
             Key jwtsKey = Keys.hmacShaKeyFor(jwtSecret.getBytes("UTF-8"));
-            
+
             Claims claims = Jwts.parserBuilder().setSigningKey(jwtsKey).build().parseClaimsJws(token).getBody();
 
             return claims;
@@ -62,7 +62,7 @@ public class JwtUtil {
     }
 
     public String getEmail(String token) {
-        
+
         Claims claims = getClaims(token);
 
         if (claims == null) {
@@ -73,7 +73,7 @@ public class JwtUtil {
     }
 
     public boolean checkIfTokenIsValid(String token) {
-      
+
         Claims claims = getClaims(token);
 
         if (claims == null) {
