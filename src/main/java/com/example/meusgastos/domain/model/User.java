@@ -22,7 +22,7 @@ public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
-    private long id;
+    private Long id;
 
     @Column(nullable = false)
     private String name;
@@ -42,6 +42,7 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private Date updated_at;
 
+    @Column
     private Date inative_at;
 
     @OneToMany(mappedBy = "user")

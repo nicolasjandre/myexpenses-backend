@@ -1,5 +1,6 @@
 package com.example.meusgastos.domain.model;
 
+import java.util.Date;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
@@ -17,17 +18,20 @@ import jakarta.persistence.Table;
 @Entity
 @Table(name = "costcenter")
 public class CostCenter {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "costcenter_id")
-    private long id;
+    private Long id;
 
     @Column(nullable = false)
     private String description;
 
     @Column(columnDefinition = "TEXT")
     private String notes;
+
+    @Column
+    private Date inative_at;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
@@ -75,5 +79,13 @@ public class CostCenter {
 
     public void setTitles(List<Title> titles) {
         this.titles = titles;
+    }
+
+    public Date getInative_at() {
+        return inative_at;
+    }
+
+    public void setInative_at(Date inative_at) {
+        this.inative_at = inative_at;
     }
 }
