@@ -16,6 +16,8 @@ public class UserResponseDto {
 
     private Date inative_at;
 
+    private Date updated_at;
+
     public Long getId() {
         return id;
     }
@@ -63,4 +65,14 @@ public class UserResponseDto {
     public void setInative_at(Date inative_at) {
         this.inative_at = inative_at;
     }
+
+    public Date getUpdated_at() {
+        return updated_at;
+    }
+
+    public void setUpdated_at(Date updated_at) {
+        this.updated_at = updated_at;
+    }
+
+    
 }

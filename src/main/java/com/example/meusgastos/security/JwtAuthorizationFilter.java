@@ -2,16 +2,12 @@ package com.example.meusgastos.security;
 
 import java.io.IOException;
 
-import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
 import com.example.meusgastos.domain.model.User;
-import com.example.meusgastos.domain.services.UserService;
-import com.example.meusgastos.dto.user.UserResponseDto;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -22,15 +18,12 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
     private JwtUtil jwtUtil;
 
-    @Autowired
-    private UserService userService;
+    private UserDetailsSecurityServer userDetailsSecurityServer;
 
-    @Autowired
-    private ModelMapper mapper;
-
-    public JwtAuthorizationFilter(AuthenticationManager authenticationManager) {
+    public JwtAuthorizationFilter(AuthenticationManager authenticationManager, JwtUtil jwtUtil, UserDetailsSecurityServer userDetailsSecurityServer) {
         super(authenticationManager);
         this.jwtUtil = jwtUtil;
+        this.userDetailsSecurityServer = userDetailsSecurityServer;
     }
 
     @Override
@@ -55,8 +48,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
         if (jwtUtil.checkIfTokenIsValid(token)) {
             String email = jwtUtil.getEmail(token);
 
-            UserResponseDto userDto = userService.getByEmail(email);
-            User user = mapper.map(userDto, User.class);
+            User user = (User) userDetailsSecurityServer.loadUserByUsername(email);
 
             return new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
 

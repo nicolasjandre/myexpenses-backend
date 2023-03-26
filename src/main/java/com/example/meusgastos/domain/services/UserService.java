@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.example.meusgastos.domain.exception.ResourceBadRequestException;
@@ -24,6 +25,9 @@ public class UserService implements ICRUDService<UserRequestDto, UserResponseDto
 
     @Autowired
     private ModelMapper mapper;
+
+    @Autowired
+    private BCryptPasswordEncoder passwordEncoder;
 
     @Override
     public List<UserResponseDto> getAll() {
@@ -70,6 +74,10 @@ public class UserService implements ICRUDService<UserRequestDto, UserResponseDto
         }
 
         User user = mapper.map(dto, User.class);
+
+        String encodedPassword = passwordEncoder.encode(user.getPassword());
+        user.setPassword(encodedPassword);
+
         user.setCreated_at(new Date());
         user.setUpdated_at(new Date());
 
@@ -86,6 +94,9 @@ public class UserService implements ICRUDService<UserRequestDto, UserResponseDto
         checkIfEmailAndPasswordAreNotNull(dto);
 
         User user = mapper.map(dto, User.class);
+        String encodedPassword = passwordEncoder.encode(dto.getPassword());
+
+        user.setPassword(encodedPassword);
 
         user.setId(id);
         user.setCreated_at(userDatabase.getCreated_at());

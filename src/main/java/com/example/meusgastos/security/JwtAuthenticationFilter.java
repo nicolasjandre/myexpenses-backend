@@ -3,8 +3,6 @@ package com.example.meusgastos.security;
 import java.io.IOException;
 import java.util.Date;
 
-import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -33,9 +31,6 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     private AuthenticationManager authenticationManager;
 
     private JwtUtil jwtUtil;
-
-    @Autowired
-    private ModelMapper mapper;
 
     public JwtAuthenticationFilter(AuthenticationManager authenticationManager, JwtUtil jwtUtil) {
         super();
@@ -71,7 +66,14 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         User user = (User) authResult.getPrincipal();
         String token = jwtUtil.generateToken(authResult);
 
-        UserResponseDto userResponseDto = mapper.map(user, UserResponseDto.class);
+        UserResponseDto userResponseDto = new UserResponseDto();
+        userResponseDto.setId(user.getId());
+        userResponseDto.setEmail(user.getEmail());
+        userResponseDto.setAvatar(user.getAvatar());
+        userResponseDto.setCreated_at(user.getCreated_at());
+        userResponseDto.setName(user.getName());
+        userResponseDto.setInative_at(user.getInative_at());
+        userResponseDto.setUpdated_at(user.getUpdated_at());
 
         LoginResponseDto loginResponseDto = new LoginResponseDto();
         loginResponseDto.setToken("Bearer " + token);
