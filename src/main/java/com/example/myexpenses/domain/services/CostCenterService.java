@@ -29,7 +29,9 @@ public class CostCenterService implements ICRUDService<CostCenterRequestDto, Cos
    @Override
    public List<CostCenterResponseDto> getAll() {
 
-      List<CostCenter> costCenters = costCenterRepository.findAll();
+      User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+      List<CostCenter> costCenters = costCenterRepository.findByUser(user);
 
       return costCenters.stream()
             .map(costCenter -> mapper.map(costCenter, CostCenterResponseDto.class))
@@ -42,6 +44,12 @@ public class CostCenterService implements ICRUDService<CostCenterRequestDto, Cos
       Optional<CostCenter> costCenterOpt = costCenterRepository.findById(id);
 
       if (costCenterOpt.isEmpty()) {
+         throw new ResourceNotFoundException("Não foi possível encontrar o centro de custo com o id: " + id);
+      }
+      
+      User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+      if (costCenterOpt.get().getUser().getId() != user.getId()) {
          throw new ResourceNotFoundException("Não foi possível encontrar o centro de custo com o id: " + id);
       }
 

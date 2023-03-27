@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import com.example.myexpenses.domain.Enum.TitleType;
 import com.example.myexpenses.domain.exception.ResourceNotFoundException;
 import com.example.myexpenses.domain.model.Title;
 import com.example.myexpenses.domain.model.User;
@@ -29,7 +28,9 @@ public class TitleService implements ICRUDService<TitleRequestDto, TitleResponse
 
    @Override
    public List<TitleResponseDto> getAll() {
-      List<Title> titles = titleRepository.findAll();
+      User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+      List<Title> titles = titleRepository.findByUser(user);
 
       return titles.stream()
             .map(title -> mapper.map(title, TitleResponseDto.class))
@@ -37,11 +38,17 @@ public class TitleService implements ICRUDService<TitleRequestDto, TitleResponse
    }
 
    @Override
-   public TitleResponseDto getById(Long id) {
+   public TitleResponseDto getById(Long id) {      
 
       Optional<Title> optTitle = titleRepository.findById(id);
 
       if (optTitle.isEmpty()) {
+         throw new ResourceNotFoundException("Não foi possível encontrar o título com o id: " + id);
+      }
+      
+      User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+      if (optTitle.get().getUser().getId() != user.getId()) {
          throw new ResourceNotFoundException("Não foi possível encontrar o título com o id: " + id);
       }
 
@@ -95,6 +102,19 @@ public class TitleService implements ICRUDService<TitleRequestDto, TitleResponse
       titleRepository.save(title);
    }
 
+   public List<TitleResponseDto> getCashFlowByDueDate(String initialDate, String finalDate) {
+
+      User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+      Long userId = user.getId();
+
+      List<Title> titles = titleRepository.getByDueDate(initialDate, finalDate, userId);
+
+      return titles.stream()
+            .map(title -> mapper.map(title, TitleResponseDto.class))
+            .collect(Collectors.toList());
+   }
+
    private void titleValidation(TitleRequestDto dto) {
 
       if (dto.getValue() == null || dto.getValue() == 0 || dto.getDueDate() == null ||
@@ -103,12 +123,9 @@ public class TitleService implements ICRUDService<TitleRequestDto, TitleResponse
 
          throw new ResourceNotFoundException(
                "Os campos título, data de vencimento, valor e descrição são obrigatórios.");
-      } else if (dto.getValue() < 0 && dto.getType() == TitleType.INCOME) {
+      } else if (dto.getValue() < 0) {
 
          dto.setValue(-(dto.getValue())); // setting to a positive value
-      } else if (dto.getValue() > 0 && dto.getType() == TitleType.EXPENSE) {
-
-         dto.setValue(-(dto.getValue())); // setting to a negative value
       }
    }
 }
