@@ -13,11 +13,13 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.example.myexpenses.common.FormatDate;
-import com.example.myexpenses.domain.model.ErrorResponse;
+import com.example.myexpenses.domain.model.RefreshJwt;
 import com.example.myexpenses.domain.model.User;
+import com.example.myexpenses.domain.services.RefreshJwtService;
 import com.example.myexpenses.dto.user.LoginRequestDto;
 import com.example.myexpenses.dto.user.LoginResponseDto;
 import com.example.myexpenses.dto.user.UserResponseDto;
+import com.example.myexpenses.handler.ErrorResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 
@@ -32,20 +34,24 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
     private JwtUtil jwtUtil;
 
-    public JwtAuthenticationFilter(AuthenticationManager authenticationManager, JwtUtil jwtUtil) {
+    private RefreshJwtService refreshJwtService;
+
+    public JwtAuthenticationFilter(AuthenticationManager authenticationManager, JwtUtil jwtUtil, RefreshJwtService refreshJwtService) {
         super();
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
+        this.refreshJwtService = refreshJwtService;
 
         setFilterProcessesUrl("/api/auth");
     }
-
+    
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
             throws AuthenticationException {
 
         try {
             LoginRequestDto login = new ObjectMapper().readValue(request.getInputStream(), LoginRequestDto.class);
+
             UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(login.getEmail(),
                     login.getPassword());
             Authentication auth = authenticationManager.authenticate(authToken);
@@ -65,6 +71,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
         User user = (User) authResult.getPrincipal();
         String token = jwtUtil.generateToken(authResult);
+        RefreshJwt refreshToken = refreshJwtService.createRefreshToken(user.getId());
 
         UserResponseDto userResponseDto = new UserResponseDto();
         userResponseDto.setId(user.getId());
@@ -77,6 +84,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
         LoginResponseDto loginResponseDto = new LoginResponseDto();
         loginResponseDto.setToken("Bearer " + token);
+        loginResponseDto.setRefreshToken(refreshToken.getToken());
         loginResponseDto.setUser(userResponseDto);
 
         response.setCharacterEncoding("UTF-8");
@@ -96,10 +104,9 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                 "Unauthorized",
                 failed.getMessage());
 
-        response.setStatus(HttpStatus.UNAUTHORIZED.value());
-
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setCharacterEncoding("UTF-8");
         response.setContentType("application/json");
-        response.getWriter().write(new Gson().toJson(error));
+        response.getWriter().write(new Gson().toJson(error.getMessage()));
     }
 }

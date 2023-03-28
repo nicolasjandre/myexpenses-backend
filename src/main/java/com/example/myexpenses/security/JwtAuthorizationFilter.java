@@ -20,7 +20,8 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
     private UserDetailsSecurityServer userDetailsSecurityServer;
 
-    public JwtAuthorizationFilter(AuthenticationManager authenticationManager, JwtUtil jwtUtil, UserDetailsSecurityServer userDetailsSecurityServer) {
+    public JwtAuthorizationFilter(AuthenticationManager authenticationManager, JwtUtil jwtUtil,
+            UserDetailsSecurityServer userDetailsSecurityServer) {
         super(authenticationManager);
         this.jwtUtil = jwtUtil;
         this.userDetailsSecurityServer = userDetailsSecurityServer;
@@ -46,12 +47,11 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
     private UsernamePasswordAuthenticationToken getAuthenticationToken(String token) {
 
         if (jwtUtil.checkIfTokenIsValid(token)) {
-            String email = jwtUtil.getEmail(token);
+            String email = jwtUtil.getEmailFromJwt(token);
 
             User user = (User) userDetailsSecurityServer.loadUserByUsername(email);
 
             return new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
-
         }
 
         return null;

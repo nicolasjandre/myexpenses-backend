@@ -22,18 +22,26 @@ public class JwtUtil {
     @Value("${auth.jwt.expiration}")
     private Long jwtExpiration;
 
+    @Value("${auth.refreshjwt.expiration}")
+    private Long refreshJwtExpiration;
+
     public String generateToken(Authentication auth) {
 
-        Date expirationDate = new Date(new Date().getTime() + jwtExpiration);
-
         User user = (User) auth.getPrincipal();
+
+        return generateTokenByEmail(user.getEmail());
+    }
+
+    public String generateTokenByEmail(String email) {
+
+        Date expirationDate = new Date(new Date().getTime() + jwtExpiration);
 
         try {
 
             Key jwtsKey = Keys.hmacShaKeyFor(jwtSecret.getBytes("UTF-8"));
 
             return Jwts.builder()
-                    .setSubject(user.getEmail())
+                    .setSubject(email)
                     .setIssuedAt(new Date())
                     .setExpiration(expirationDate)
                     .signWith(jwtsKey)
@@ -45,7 +53,7 @@ public class JwtUtil {
         }
     }
 
-    private Claims getClaims(String token) {
+    protected Claims getClaims(String token) {
 
         try {
 
@@ -61,7 +69,7 @@ public class JwtUtil {
         }
     }
 
-    public String getEmail(String token) {
+    public String getEmailFromJwt(String token) {
 
         Claims claims = getClaims(token);
 

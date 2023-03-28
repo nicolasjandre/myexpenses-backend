@@ -15,3 +15,4 @@ auth.jwt.secret=
 
 #Expiration in milliseconds --- 150000 --> 2.5 minutes
 auth.jwt.expiration=150000
+auth.refreshJwt.expiration=3600000

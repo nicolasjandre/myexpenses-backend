@@ -12,12 +12,19 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
+import com.example.myexpenses.domain.services.RefreshJwtService;
+
+import static org.springframework.security.config.Customizer.withDefaults;
+
 @Configuration
 @EnableWebSecurity
 public class WebSecurityConfig {
 
         @Autowired
         private JwtUtil jwtUtil;
+
+        @Autowired
+        private RefreshJwtService refreshJwtService;
 
         @Autowired
         private AuthenticationConfiguration authenticationConfiguration;
@@ -40,23 +47,23 @@ public class WebSecurityConfig {
         public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
                 http
                                 .headers(headers -> headers.frameOptions().disable())
-                                .cors(cors -> cors.disable())
                                 .csrf(csrf -> csrf.disable())
                                 .authorizeHttpRequests((auth) -> auth
                                                 .requestMatchers(HttpMethod.POST, "/api/users").permitAll()
+                                                .requestMatchers(HttpMethod.POST, "/api/refresh").permitAll()
                                                 .anyRequest().authenticated())
                                 .sessionManagement(management -> management
                                                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
                 http
                                 .addFilter(new JwtAuthenticationFilter(
-                                                authenticationManager(authenticationConfiguration), jwtUtil));
+                                                authenticationManager(authenticationConfiguration), jwtUtil, refreshJwtService));
 
                 http
                                 .addFilter(new JwtAuthorizationFilter(
                                                 authenticationManager(authenticationConfiguration), jwtUtil,
                                                 userDetailsSecurityServer));
-
+                http.cors(withDefaults());
                 return http.build();
         }
 }

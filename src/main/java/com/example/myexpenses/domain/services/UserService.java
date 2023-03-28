@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +17,9 @@ import com.example.myexpenses.domain.model.User;
 import com.example.myexpenses.domain.repository.UserRepository;
 import com.example.myexpenses.dto.user.UserRequestDto;
 import com.example.myexpenses.dto.user.UserResponseDto;
+import com.example.myexpenses.security.JwtUtil;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 @Service
 public class UserService implements ICRUDService<UserRequestDto, UserResponseDto> {
@@ -28,6 +32,8 @@ public class UserService implements ICRUDService<UserRequestDto, UserResponseDto
 
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
+
+    private JwtUtil jwtUtil;
 
     @Override
     public List<UserResponseDto> getAll() {
@@ -49,6 +55,15 @@ public class UserService implements ICRUDService<UserRequestDto, UserResponseDto
         }
 
         return mapper.map(optUser.get(), UserResponseDto.class);
+    }
+
+    public UserResponseDto getMe(HttpServletRequest request) {
+        String header = request.getHeader("Authorization");
+        String token = header.substring(7);
+        jwtUtil.checkIfTokenIsValid(token);
+        String email = jwtUtil.getEmailFromJwt(token);
+        
+        return getByEmail(email);
     }
 
     public UserResponseDto getByEmail(String email) {
@@ -89,6 +104,8 @@ public class UserService implements ICRUDService<UserRequestDto, UserResponseDto
     @Override
     public UserResponseDto update(Long id, UserRequestDto dto) {
 
+        User userWhoIsRequesting = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
         UserResponseDto userDatabase = getById(id);
 
         checkIfEmailAndPasswordAreNotNull(dto);
@@ -96,12 +113,17 @@ public class UserService implements ICRUDService<UserRequestDto, UserResponseDto
         User user = mapper.map(dto, User.class);
         String encodedPassword = passwordEncoder.encode(dto.getPassword());
 
+        if (userDatabase.getId() != userWhoIsRequesting.getId()) {
+            throw new ResourceNotFoundException("Não foi possível encontrar o centro de custo com o id: " + id);
+        }
+
         user.setPassword(encodedPassword);
 
         user.setId(id);
         user.setCreated_at(userDatabase.getCreated_at());
         user.setInative_at(userDatabase.getInative_at());
         user.setUpdated_at(new Date());
+        
         user = userRepository.save(user);
 
         return mapper.map(user, UserResponseDto.class);

@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 public interface ICRUDController<Req, Res> {
 
-    @GetMapping
+    @GetMapping("/all")
     ResponseEntity<List<Res>> getAll();
 
     @GetMapping("/{id}")

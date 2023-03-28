@@ -13,7 +13,7 @@ import com.example.myexpenses.domain.services.CostCenterService;
 import com.example.myexpenses.dto.costcenter.CostCenterRequestDto;
 import com.example.myexpenses.dto.costcenter.CostCenterResponseDto;
 
-@CrossOrigin("*")
+@CrossOrigin(origins = "http://localhost:3000/")
 @RestController
 @RequestMapping("/api/costcenters")
 public class CostCenterController implements ICRUDController<CostCenterRequestDto, CostCenterResponseDto> {

@@ -27,5 +27,4 @@ public class UserDetailsSecurityServer implements UserDetailsService {
 
         return optUser.get();
     }
-    
 }

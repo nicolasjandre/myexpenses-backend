@@ -13,7 +13,7 @@ import com.example.myexpenses.domain.services.TitleService;
 import com.example.myexpenses.dto.title.TitleRequestDto;
 import com.example.myexpenses.dto.title.TitleResponseDto;
 
-@CrossOrigin("*")
+@CrossOrigin(origins = "http://localhost:3000/")
 @RestController
 @RequestMapping("/api/titles")
 public class TitleController implements ICRUDController<TitleRequestDto, TitleResponseDto> {

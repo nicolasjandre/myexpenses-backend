@@ -1,4 +1,4 @@
-package com.example.myexpenses.domain.model;
+package com.example.myexpenses.handler;
 
 public class ErrorResponse {
     

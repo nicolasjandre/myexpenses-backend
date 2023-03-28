@@ -6,11 +6,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.context.request.WebRequest;
 
 import com.example.myexpenses.common.FormatDate;
 import com.example.myexpenses.domain.exception.ResourceBadRequestException;
 import com.example.myexpenses.domain.exception.ResourceNotFoundException;
-import com.example.myexpenses.domain.model.ErrorResponse;
 
 @ControllerAdvice
 public class RestExceptionHandler {
@@ -55,5 +56,19 @@ public class RestExceptionHandler {
                 exception.getMessage());
 
         return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(TokenRefreshException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ResponseEntity<ErrorResponse> handleTokenRefreshException(TokenRefreshException ex, WebRequest request) {
+        String dateAndHour = FormatDate.formatDate(new Date());
+
+        ErrorResponse error = new ErrorResponse(
+                dateAndHour,
+                HttpStatus.FORBIDDEN.value(),
+                "FORBIDDEN",
+                ex.getMessage());
+
+        return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
     }
 }

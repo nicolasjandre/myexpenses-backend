@@ -4,6 +4,8 @@ public class LoginResponseDto {
     
     private String token;
 
+    private String refreshToken;
+
     private UserResponseDto user;
 
     public String getToken() {
@@ -21,4 +23,12 @@ public class LoginResponseDto {
     public void setUser(UserResponseDto user) {
         this.user = user;
     }
+
+   public String getRefreshToken() {
+      return refreshToken;
+   }
+
+   public void setRefreshToken(String refreshToken) {
+      this.refreshToken = refreshToken;
+   }
 }

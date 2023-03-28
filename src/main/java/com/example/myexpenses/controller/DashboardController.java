@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.myexpenses.domain.services.DashboardService;
 import com.example.myexpenses.dto.dashboard.DashboardResponseDto;
 
-@CrossOrigin("*")
+@CrossOrigin(origins = "http://localhost:3000/")
 @RestController
 @RequestMapping("/api/dashboard")
 public class DashboardController {
