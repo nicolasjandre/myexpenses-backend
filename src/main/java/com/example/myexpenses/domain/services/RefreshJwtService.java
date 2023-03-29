@@ -17,7 +17,7 @@ import com.example.myexpenses.handler.TokenRefreshException;
 
 @Service
 public class RefreshJwtService {
-   
+
    @Value("${auth.refreshjwt.expiration}")
    private Long refreshTokenDuration;
 
@@ -33,7 +33,7 @@ public class RefreshJwtService {
    }
 
    public RefreshJwt createRefreshToken(Long userId) {
-      
+
       RefreshJwt refreshToken = new RefreshJwt();
 
       User user = userRepository.findById(userId).get();
@@ -47,9 +47,9 @@ public class RefreshJwtService {
    }
 
    public RefreshJwt verifyExpiration(RefreshJwt token) {
-      
+
       if (token.getExpirationDate().compareTo(new Date()) < 0) {
-         refreshJwtRepository.delete(token);
+         refreshJwtRepository.deleteByExpirationDate();
          throw new TokenRefreshException(token.getToken(), "O refresh token expirou, por favor faça um novo login.");
       }
 
@@ -57,7 +57,7 @@ public class RefreshJwtService {
    }
 
    @Transactional
-   public int deleteByUserId(Long userId) {
-      return refreshJwtRepository.deleteByUser(userRepository.findById(userId).get());
+   public void deleteByExpirationDate() {
+      refreshJwtRepository.deleteByExpirationDate();
    }
 }

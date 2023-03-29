@@ -114,7 +114,7 @@ public class UserService implements ICRUDService<UserRequestDto, UserResponseDto
         String encodedPassword = passwordEncoder.encode(dto.getPassword());
 
         if (userDatabase.getId() != userWhoIsRequesting.getId()) {
-            throw new ResourceNotFoundException("Não foi possível encontrar o centro de custo com o id: " + id);
+            throw new ResourceNotFoundException("Não foi possível encontrar o usuário com o id: " + id);
         }
 
         user.setPassword(encodedPassword);

@@ -39,6 +39,6 @@ public class RefreshJwtController {
            return ResponseEntity.ok(new JwtRefreshResponseDto(token, newRefreshToken));
          })
          .orElseThrow(() -> new TokenRefreshException(requestRefreshToken,
-             "Este refresh token não existe na base de dados."));
+             "O refresh token é inválido ou já expirou."));
    }
 }

@@ -1,6 +1,7 @@
 package com.example.myexpenses.security;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -10,6 +11,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 
 import com.example.myexpenses.domain.services.RefreshJwtService;
@@ -31,6 +33,10 @@ public class WebSecurityConfig {
 
         @Autowired
         private UserDetailsSecurityServer userDetailsSecurityServer;
+
+        @Autowired
+        @Qualifier("customAuthenticationEntryPoint")
+        AuthenticationEntryPoint authEntryPoint;
 
         @Bean
         public BCryptPasswordEncoder passwordEncoder() {
@@ -57,15 +63,16 @@ public class WebSecurityConfig {
 
                 http
                                 .addFilter(new JwtAuthenticationFilter(
-                                                authenticationManager(authenticationConfiguration), jwtUtil, refreshJwtService));
+                                                authenticationManager(authenticationConfiguration), jwtUtil,
+                                                refreshJwtService));
 
                 http
                                 .addFilter(new JwtAuthorizationFilter(
                                                 authenticationManager(authenticationConfiguration), jwtUtil,
                                                 userDetailsSecurityServer));
                 http.cors(withDefaults()).sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().exceptionHandling().authenticationEntryPoint(
-                        (request, response, authException) -> response.sendError(401));
+                                .sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().exceptionHandling()
+                                .authenticationEntryPoint(authEntryPoint);
                 return http.build();
         }
 }
