@@ -13,7 +13,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 import com.example.myexpenses.domain.services.RefreshJwtService;
-import com.example.myexpenses.handler.CustomAccessDeniedHandler;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
@@ -66,8 +65,7 @@ public class WebSecurityConfig {
                                                 userDetailsSecurityServer));
                 http.cors(withDefaults()).sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().exceptionHandling().authenticationEntryPoint(
-                        (request, response, authException) -> response.sendError(401))
-                        .accessDeniedHandler(new CustomAccessDeniedHandler());
+                        (request, response, authException) -> response.sendError(401));
                 return http.build();
         }
 }
