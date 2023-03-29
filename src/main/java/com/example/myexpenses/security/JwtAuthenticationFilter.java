@@ -60,7 +60,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         } catch (BadCredentialsException e) {
             throw new BadCredentialsException("Usuário ou senha inválidos");
 
-        } catch (Exception e) {
+        } catch (IOException e) {
             throw new InternalAuthenticationServiceException(e.getMessage());
         }
     }
