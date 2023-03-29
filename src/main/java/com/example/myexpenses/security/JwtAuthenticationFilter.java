@@ -15,6 +15,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import com.example.myexpenses.common.FormatDate;
 import com.example.myexpenses.domain.model.RefreshJwt;
 import com.example.myexpenses.domain.model.User;
+import com.example.myexpenses.domain.repository.RefreshJwtRepository;
 import com.example.myexpenses.domain.services.RefreshJwtService;
 import com.example.myexpenses.dto.user.LoginRequestDto;
 import com.example.myexpenses.dto.user.LoginResponseDto;
@@ -36,11 +37,14 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
     private RefreshJwtService refreshJwtService;
 
-    public JwtAuthenticationFilter(AuthenticationManager authenticationManager, JwtUtil jwtUtil, RefreshJwtService refreshJwtService) {
+    private RefreshJwtRepository refreshJwtRepository;
+
+    public JwtAuthenticationFilter(AuthenticationManager authenticationManager, JwtUtil jwtUtil, RefreshJwtService refreshJwtService, RefreshJwtRepository refreshJwtRepository) {
         super();
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
         this.refreshJwtService = refreshJwtService;
+        this.refreshJwtRepository = refreshJwtRepository;
 
         setFilterProcessesUrl("/api/auth");
     }
@@ -70,9 +74,16 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
             Authentication authResult) throws IOException, ServletException {
 
         User user = (User) authResult.getPrincipal();
-        String token = jwtUtil.generateToken(authResult);
-        RefreshJwt refreshToken = refreshJwtService.createRefreshToken(user.getId());
+        String notExpiredRefreshToken = "";
 
+        try {
+            notExpiredRefreshToken = refreshJwtRepository.findByUsers(user.getId()).get().getToken();
+        } catch (Exception e) {
+            System.out.println("Nenhum refresh token na base de dados. Será gerado um novo refresh token.");
+        }
+
+        String token = jwtUtil.generateToken(authResult);
+        
         UserResponseDto userResponseDto = new UserResponseDto();
         userResponseDto.setId(user.getId());
         userResponseDto.setEmail(user.getEmail());
@@ -84,7 +95,16 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
         LoginResponseDto loginResponseDto = new LoginResponseDto();
         loginResponseDto.setToken("Bearer " + token);
-        loginResponseDto.setRefreshToken(refreshToken.getToken());
+
+        if (notExpiredRefreshToken == null || notExpiredRefreshToken.isEmpty()) {
+            
+            RefreshJwt newRefreshToken = refreshJwtService.createRefreshToken(user.getId());
+            loginResponseDto.setRefreshToken(newRefreshToken.getToken());
+
+        } else {
+            loginResponseDto.setRefreshToken(notExpiredRefreshToken);
+        }
+
         loginResponseDto.setUser(userResponseDto);
 
         response.setCharacterEncoding("UTF-8");

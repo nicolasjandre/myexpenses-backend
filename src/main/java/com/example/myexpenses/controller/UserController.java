@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.myexpenses.domain.services.UserService;
 import com.example.myexpenses.dto.user.UserRequestDto;
 import com.example.myexpenses.dto.user.UserResponseDto;
-import com.example.myexpenses.security.JwtUtil;
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -25,9 +24,6 @@ public class UserController implements ICRUDController<UserRequestDto, UserRespo
 
     @Autowired
     private UserService userService;
-
-    @Autowired
-    private JwtUtil jwtUtil;
 
     @Override
     public ResponseEntity<List<UserResponseDto>> getAll() {
@@ -43,13 +39,8 @@ public class UserController implements ICRUDController<UserRequestDto, UserRespo
 
     @GetMapping
     public ResponseEntity<UserResponseDto> getMe(HttpServletRequest request) {
-        String header = request.getHeader("Authorization");
-        
-        String token = header.substring(7);
-        
-        String email = jwtUtil.getEmailFromJwt(token);
-        
-        return ResponseEntity.ok(userService.getByEmail(email));
+
+        return ResponseEntity.ok(userService.getMe(request));
     }
 
     @Override

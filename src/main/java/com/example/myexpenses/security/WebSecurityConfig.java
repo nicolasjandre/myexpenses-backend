@@ -14,6 +14,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 
+import com.example.myexpenses.domain.repository.RefreshJwtRepository;
 import com.example.myexpenses.domain.services.RefreshJwtService;
 
 import static org.springframework.security.config.Customizer.withDefaults;
@@ -27,6 +28,9 @@ public class WebSecurityConfig {
 
         @Autowired
         private RefreshJwtService refreshJwtService;
+
+        @Autowired
+        private RefreshJwtRepository refreshJwtRepository;
 
         @Autowired
         private AuthenticationConfiguration authenticationConfiguration;
@@ -64,15 +68,15 @@ public class WebSecurityConfig {
                 http
                                 .addFilter(new JwtAuthenticationFilter(
                                                 authenticationManager(authenticationConfiguration), jwtUtil,
-                                                refreshJwtService));
+                                                refreshJwtService, refreshJwtRepository));
 
                 http
                                 .addFilter(new JwtAuthorizationFilter(
                                                 authenticationManager(authenticationConfiguration), jwtUtil,
                                                 userDetailsSecurityServer));
-                http.cors(withDefaults()).sessionManagement()
-                                .sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().exceptionHandling()
-                                .authenticationEntryPoint(authEntryPoint);
+            http.cors(withDefaults()).sessionManagement(management -> management
+                    .sessionCreationPolicy(SessionCreationPolicy.STATELESS)).exceptionHandling(handling -> handling
+                    .authenticationEntryPoint(authEntryPoint));
                 return http.build();
         }
 }

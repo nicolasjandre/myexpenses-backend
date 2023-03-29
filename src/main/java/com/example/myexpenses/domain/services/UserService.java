@@ -33,6 +33,7 @@ public class UserService implements ICRUDService<UserRequestDto, UserResponseDto
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
 
+    @Autowired
     private JwtUtil jwtUtil;
 
     @Override
@@ -49,8 +50,12 @@ public class UserService implements ICRUDService<UserRequestDto, UserResponseDto
     public UserResponseDto getById(Long id) {
 
         Optional<User> optUser = userRepository.findById(id);
+        User userWhoIsRequesting = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
 
         if (optUser.isEmpty()) {
+            throw new ResourceNotFoundException("Não foi possível encontrar o usuário com o id: " + id);
+        } else if (!optUser.get().getId().equals(userWhoIsRequesting.getId())) {
             throw new ResourceNotFoundException("Não foi possível encontrar o usuário com o id: " + id);
         }
 
@@ -58,9 +63,11 @@ public class UserService implements ICRUDService<UserRequestDto, UserResponseDto
     }
 
     public UserResponseDto getMe(HttpServletRequest request) {
+        
         String header = request.getHeader("Authorization");
+        
         String token = header.substring(7);
-        jwtUtil.checkIfTokenIsValid(token);
+        
         String email = jwtUtil.getEmailFromJwt(token);
         
         return getByEmail(email);
@@ -82,17 +89,21 @@ public class UserService implements ICRUDService<UserRequestDto, UserResponseDto
 
         checkIfEmailAndPasswordAreNotNull(dto);
 
-        Optional<User> optUser = userRepository.findByEmail(dto.getEmail());
+        Optional<User> optUser = userRepository.findByEmail(dto.getEmail().toLowerCase());
 
         if (optUser.isPresent()) {
             throw new ResourceBadRequestException("Já existe um usuário cadastrado com o e-mail: " + dto.getEmail());
+        }
+
+        if (!dto.getPassword().equals(dto.getPasswordConfirmation())) {
+            throw new ResourceBadRequestException("As senhas não conferem.");
         }
 
         User user = mapper.map(dto, User.class);
 
         String encodedPassword = passwordEncoder.encode(user.getPassword());
         user.setPassword(encodedPassword);
-
+        user.setEmail(user.getEmail().toLowerCase());
         user.setCreated_at(new Date());
         user.setUpdated_at(new Date());
 
@@ -104,18 +115,18 @@ public class UserService implements ICRUDService<UserRequestDto, UserResponseDto
     @Override
     public UserResponseDto update(Long id, UserRequestDto dto) {
 
+        checkIfEmailAndPasswordAreNotNull(dto);
+
         User userWhoIsRequesting = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         UserResponseDto userDatabase = getById(id);
 
-        checkIfEmailAndPasswordAreNotNull(dto);
-
-        User user = mapper.map(dto, User.class);
-        String encodedPassword = passwordEncoder.encode(dto.getPassword());
-
         if (userDatabase.getId() != userWhoIsRequesting.getId()) {
             throw new ResourceNotFoundException("Não foi possível encontrar o usuário com o id: " + id);
         }
+
+        User user = mapper.map(dto, User.class);
+        String encodedPassword = passwordEncoder.encode(dto.getPassword());
 
         user.setPassword(encodedPassword);
 
