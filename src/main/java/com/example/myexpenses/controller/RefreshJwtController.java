@@ -35,10 +35,9 @@ public class RefreshJwtController {
          .map(RefreshJwt::getUser)
          .map(user -> {
            String token = jwtUtil.generateTokenByEmail(user.getEmail());
-           String newRefreshToken = refreshJwtService.createRefreshToken(user.getId()).getToken();
-           return ResponseEntity.ok(new JwtRefreshResponseDto(token, newRefreshToken));
+           return ResponseEntity.ok(new JwtRefreshResponseDto("Bearer " + token));
          })
          .orElseThrow(() -> new TokenRefreshException(requestRefreshToken,
-             "O refresh token é inválido ou já expirou."));
+             "Este refresh token não existe na base de dados."));
    }
 }
