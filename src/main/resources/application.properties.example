@@ -1,6 +1,6 @@
 # server.port ->
 spring.datasource.url=
-spring.datasource.username=
+spring.datasource.username=postgre
 spring.datasource.password=
 spring.datasource.driver-class-name=
 
@@ -13,6 +13,8 @@ spring.jpa.show-sql=true
 # JWT
 auth.jwt.secret=
 
-#Expiration in milliseconds --- 150000 --> 2.5 minutes
-auth.jwt.expiration=150000
-auth.refreshJwt.expiration=3600000
+#15 minutes -> 900000
+auth.jwt.expiration=900000
+
+#24 hours -> 86400000
+auth.refreshjwt.expiration=86400000

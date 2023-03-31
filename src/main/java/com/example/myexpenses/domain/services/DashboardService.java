@@ -23,22 +23,22 @@ public class DashboardService {
       Double totalExpenses = 0.0;
       Double totalIncomes = 0.0;
       Double balance = 0.0;
-      List<TitleResponseDto> titlesToPay = new ArrayList<>();
-      List<TitleResponseDto> titlesToReceive = new ArrayList<>();
+      List<TitleResponseDto> expenseTitles = new ArrayList<>();
+      List<TitleResponseDto> incomeTitles = new ArrayList<>();
 
       for (TitleResponseDto title : titles) {
 
          if (title.getType() == TitleType.EXPENSE) {
             totalExpenses += title.getValue();
-            titlesToPay.add(title);
+            expenseTitles.add(title);
          } else {
             totalIncomes += title.getValue();
-            titlesToReceive.add(title);
+            incomeTitles.add(title);
          }
       }
 
       balance = totalIncomes - totalExpenses;
 
-      return new DashboardResponseDto(totalExpenses, totalIncomes, balance, titlesToPay, titlesToReceive);
+      return new DashboardResponseDto(totalExpenses, totalIncomes, balance, expenseTitles, incomeTitles);
    }
 }

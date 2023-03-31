@@ -12,20 +12,20 @@ public class DashboardResponseDto {
 
    private Double balance;
 
-   private List<TitleResponseDto> titlesToPay;
+   private List<TitleResponseDto> expenseTitles;
 
-   private List<TitleResponseDto> titlesToReceive;
+   private List<TitleResponseDto> incomeTitles;
 
    public DashboardResponseDto() {
    }
 
    public DashboardResponseDto(Double totalExpenses, Double totalIncomes, Double balance,
-         List<TitleResponseDto> titlesToPay, List<TitleResponseDto> titlesToReceive) {
+         List<TitleResponseDto> expenseTitles, List<TitleResponseDto> incomeTitles) {
       this.totalExpenses = totalExpenses;
       this.totalIncomes = totalIncomes;
       this.balance = balance;
-      this.titlesToPay = titlesToPay;
-      this.titlesToReceive = titlesToReceive;
+      this.expenseTitles = expenseTitles;
+      this.incomeTitles = incomeTitles;
    }
 
    public Double getTotalExpenses() {
@@ -52,20 +52,20 @@ public class DashboardResponseDto {
       this.balance = balance;
    }
 
-   public List<TitleResponseDto> getTitlesToPay() {
-      return titlesToPay;
+   public List<TitleResponseDto> getExpenseTitles() {
+      return expenseTitles;
    }
 
-   public void setTitlesToPay(List<TitleResponseDto> titlesToPay) {
-      this.titlesToPay = titlesToPay;
+   public void setExpenseTitles(List<TitleResponseDto> expenseTitles) {
+      this.expenseTitles = expenseTitles;
    }
 
-   public List<TitleResponseDto> getTitlesToReceive() {
-      return titlesToReceive;
+   public List<TitleResponseDto> getIncomeTitles() {
+      return incomeTitles;
    }
 
-   public void setTitlesToReceive(List<TitleResponseDto> titlesToReceive) {
-      this.titlesToReceive = titlesToReceive;
+   public void setIncomeTitles(List<TitleResponseDto> incomeTitles) {
+      this.incomeTitles = incomeTitles;
    }
 
 }
