@@ -1,6 +1,8 @@
 package com.example.myexpenses.domain.services;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +38,9 @@ public class DashboardService {
             incomeTitles.add(title);
          }
       }
+
+      Collections.sort(expenseTitles, Comparator.comparing(TitleResponseDto::getReferenceDate));
+      Collections.sort(incomeTitles, Comparator.comparing(TitleResponseDto::getReferenceDate));
 
       balance = totalIncomes - totalExpenses;
 

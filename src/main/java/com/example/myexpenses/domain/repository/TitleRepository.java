@@ -12,7 +12,7 @@ import com.example.myexpenses.domain.model.User;
 public interface TitleRepository extends JpaRepository<Title, Long> {
 
       @Query(nativeQuery = true, value = "SELECT * FROM public.title " +
-                  "WHERE due_date " +
+                  "WHERE reference_date " +
                   "BETWEEN TO_TIMESTAMP(:initialDate, 'YYYY-MM-DD hh24:MI:SS') AND " +
                   "TO_TIMESTAMP(:finalDate, 'YYYY-MM-DD hh24:MI:SS') AND " + 
                   "user_id = :userId")
