@@ -3,13 +3,13 @@ package com.example.myexpenses.domain.model;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -37,6 +37,12 @@ public class User implements UserDetails {
     @Column(columnDefinition = "TEXT")
     private String avatar;
 
+    @Column
+    private Double userBalance;
+
+    @OneToMany(mappedBy = "user")
+    private Set<CostCenter> costCenters;
+
     @Column(nullable = false)
     private Date created_at;
 
@@ -46,7 +52,7 @@ public class User implements UserDetails {
     @Column
     private Date inative_at;
 
-    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "user")
     private List<Title> titles;
 
     public Long getId() {
@@ -119,6 +125,14 @@ public class User implements UserDetails {
 
     public void setTitles(List<Title> titles) {
         this.titles = titles;
+    }
+
+    public void setUserBalance(Double userBalance) {
+        this.userBalance = userBalance;
+    }
+
+    public Double getUserBalance() {
+        return this.userBalance;
     }
 
     //#region Framework

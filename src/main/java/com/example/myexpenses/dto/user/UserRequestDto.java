@@ -6,7 +6,11 @@ public class UserRequestDto {
     
     private String email;
 
+    private Double userBalance;
+
     private String password;
+
+    private String newPassword;
 
     private String passwordConfirmation;
 
@@ -42,5 +46,19 @@ public class UserRequestDto {
         this.passwordConfirmation = passwordConfirmation;
     }
 
-    
+    public void setUserBalance(Double userBalance) {
+        this.userBalance = userBalance;
+    }
+
+    public Double getUserBalance() {
+        return this.userBalance;
+    }
+
+   public String getNewPassword() {
+      return newPassword;
+   }
+
+   public void setNewPassword(String newPassword) {
+      this.newPassword = newPassword;
+   }
 }

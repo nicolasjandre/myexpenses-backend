@@ -1,9 +1,8 @@
 package com.example.myexpenses.domain.model;
 
 import java.util.Date;
-import java.util.List;
 
-import com.example.myexpenses.domain.Enum.TitleType;
+import com.example.myexpenses.domain.Enum.Type;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -11,8 +10,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
+
 import jakarta.persistence.ManyToOne;
 
 @Entity
@@ -30,11 +28,11 @@ public class Title {
     @JoinColumn(name = "user_id")
     private User user;
 
-    private TitleType type;
+    private Type type;
 
-    @ManyToMany
-    @JoinTable(name = "title_costcenter", joinColumns = @JoinColumn(name = "title_id"), inverseJoinColumns = @JoinColumn(name = "costcenter_id"))
-    private List<CostCenter> costCenters;
+    @ManyToOne
+    @JoinColumn(name="costcenter_id", nullable=false)
+    private CostCenter costCenter;
 
     @Column(nullable = false)
     private Double value;
@@ -76,20 +74,12 @@ public class Title {
         this.user = user;
     }
 
-    public TitleType getType() {
+    public Type getType() {
         return type;
     }
 
-    public void setType(TitleType type) {
+    public void setType(Type type) {
         this.type = type;
-    }
-
-    public List<CostCenter> getCostCenters() {
-        return costCenters;
-    }
-
-    public void setCostCenters(List<CostCenter> costCenters) {
-        this.costCenters = costCenters;
     }
 
     public Double getValue() {
@@ -146,5 +136,13 @@ public class Title {
 
     public void setNotes(String notes) {
         this.notes = notes;
+    }
+
+    public CostCenter getCostCenter() {
+        return costCenter;
+    }
+
+    public void setCostCenter(CostCenter costCenter) {
+        this.costCenter = costCenter;
     }
 }

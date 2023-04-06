@@ -1,9 +1,8 @@
 package com.example.myexpenses.dto.title;
 
 import java.util.Date;
-import java.util.List;
 
-import com.example.myexpenses.domain.Enum.TitleType;
+import com.example.myexpenses.domain.Enum.Type;
 import com.example.myexpenses.dto.costcenter.CostCenterRequestDto;
 
 public class TitleRequestDto {
@@ -11,9 +10,9 @@ public class TitleRequestDto {
 
    private String description;
 
-   private TitleType type;
+   private Type type;
 
-   private List<CostCenterRequestDto> costCenters;
+   private CostCenterRequestDto costCenter;
 
    private Double value;
 
@@ -43,20 +42,20 @@ public class TitleRequestDto {
       this.description = description;
    }
 
-   public TitleType getType() {
+   public Type getType() {
       return type;
    }
 
-   public void setType(TitleType type) {
+   public void setType(Type type) {
       this.type = type;
    }
 
-   public List<CostCenterRequestDto> getCostCenters() {
-      return costCenters;
+   public CostCenterRequestDto getCostCenter() {
+      return costCenter;
    }
 
-   public void setCostCenters(List<CostCenterRequestDto> costCenters) {
-      this.costCenters = costCenters;
+   public void setCostCenter(CostCenterRequestDto costCenter) {
+      this.costCenter = costCenter;
    }
 
    public Double getValue() {

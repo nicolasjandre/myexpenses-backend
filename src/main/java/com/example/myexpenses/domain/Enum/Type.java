@@ -1,13 +1,13 @@
 package com.example.myexpenses.domain.Enum;
 
-public enum TitleType {
+public enum Type {
 
     INCOME("A receber"),
     EXPENSE("A pagar");
 
     private String value;
 
-    private TitleType(String value) {
+    private Type(String value) {
         this.value = value;
     }
 

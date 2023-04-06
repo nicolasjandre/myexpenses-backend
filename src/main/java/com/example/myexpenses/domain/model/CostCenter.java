@@ -3,6 +3,7 @@ package com.example.myexpenses.domain.model;
 import java.util.Date;
 import java.util.List;
 
+import com.example.myexpenses.domain.Enum.Type;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import jakarta.persistence.Column;
@@ -11,8 +12,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity
@@ -27,8 +28,11 @@ public class CostCenter {
     @Column(nullable = false)
     private String description;
 
-    @Column(columnDefinition = "TEXT")
-    private String notes;
+    @Column
+    private Type type;
+
+    @Column(nullable = false)
+    private boolean standard;
 
     @Column
     private Date inative_at;
@@ -37,7 +41,7 @@ public class CostCenter {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToMany(mappedBy = "costCenters")
+    @OneToMany(mappedBy = "costCenter")
     @JsonBackReference
     private List<Title> titles;
 
@@ -55,14 +59,6 @@ public class CostCenter {
 
     public void setDescription(String description) {
         this.description = description;
-    }
-
-    public String getNotes() {
-        return notes;
-    }
-
-    public void setNotes(String notes) {
-        this.notes = notes;
     }
 
     public User getUser() {
@@ -87,5 +83,21 @@ public class CostCenter {
 
     public void setInative_at(Date inative_at) {
         this.inative_at = inative_at;
+    }
+
+    public Type getType() {
+        return type;
+    }
+
+    public void setType(Type type) {
+        this.type = type;
+    }
+    
+    public boolean isStandard() {
+        return standard;
+    }
+
+    public void setStandard(boolean standard) {
+        this.standard = standard;
     }
 }

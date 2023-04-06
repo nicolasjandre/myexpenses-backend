@@ -38,6 +38,9 @@ public class WebSecurityConfig {
         @Autowired
         private UserDetailsSecurityServer userDetailsSecurityServer;
 
+        private static final String[] SWAGGER_PATHS = { "/swagger-ui.html", "/v3/api-docs/**", "/swagger-ui/**",
+                        "/webjars/swagger-ui/**" };
+
         @Autowired
         @Qualifier("customAuthenticationEntryPoint")
         AuthenticationEntryPoint authEntryPoint;
@@ -58,25 +61,24 @@ public class WebSecurityConfig {
                 http
                                 .headers(headers -> headers.frameOptions().disable())
                                 .csrf(csrf -> csrf.disable())
+                                .cors(withDefaults()).sessionManagement(management -> management
+                                                .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                                .exceptionHandling(handling -> handling
+                                                .authenticationEntryPoint(authEntryPoint))
                                 .authorizeHttpRequests((auth) -> auth
                                                 .requestMatchers(HttpMethod.POST, "/api/users").permitAll()
                                                 .requestMatchers(HttpMethod.POST, "/api/refresh").permitAll()
+                                                .requestMatchers(SWAGGER_PATHS).permitAll()
                                                 .anyRequest().authenticated())
                                 .sessionManagement(management -> management
-                                                .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-
-                http
+                                                .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                                 .addFilter(new JwtAuthenticationFilter(
                                                 authenticationManager(authenticationConfiguration), jwtUtil,
-                                                refreshJwtService, refreshJwtRepository));
-
-                http
+                                                refreshJwtService, refreshJwtRepository))
                                 .addFilter(new JwtAuthorizationFilter(
                                                 authenticationManager(authenticationConfiguration), jwtUtil,
                                                 userDetailsSecurityServer));
-            http.cors(withDefaults()).sessionManagement(management -> management
-                    .sessionCreationPolicy(SessionCreationPolicy.STATELESS)).exceptionHandling(handling -> handling
-                    .authenticationEntryPoint(authEntryPoint));
+
                 return http.build();
         }
 }

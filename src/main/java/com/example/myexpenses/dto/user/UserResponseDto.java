@@ -12,6 +12,8 @@ public class UserResponseDto {
 
     private String avatar;
 
+    private Double userBalance;
+
     private Date created_at;
 
     private Date inative_at;
@@ -74,5 +76,11 @@ public class UserResponseDto {
         this.updated_at = updated_at;
     }
 
-    
+    public Double getUserBalance() {
+        return userBalance;
+    }
+
+    public void setUserBalance(Double userBalance) {
+        this.userBalance = userBalance;
+    }
 }

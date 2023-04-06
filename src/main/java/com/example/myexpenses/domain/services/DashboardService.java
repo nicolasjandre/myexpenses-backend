@@ -8,7 +8,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.example.myexpenses.domain.Enum.TitleType;
+import com.example.myexpenses.domain.Enum.Type;
 import com.example.myexpenses.dto.dashboard.DashboardResponseDto;
 import com.example.myexpenses.dto.title.TitleResponseDto;
 
@@ -30,7 +30,7 @@ public class DashboardService {
 
       for (TitleResponseDto title : titles) {
 
-         if (title.getType() == TitleType.EXPENSE) {
+         if (title.getType() == Type.EXPENSE) {
             totalExpenses += title.getValue();
             expenseTitles.add(title);
          } else {

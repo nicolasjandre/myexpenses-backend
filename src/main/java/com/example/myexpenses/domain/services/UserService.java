@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -52,7 +53,6 @@ public class UserService implements ICRUDService<UserRequestDto, UserResponseDto
         Optional<User> optUser = userRepository.findById(id);
         User userWhoIsRequesting = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-
         if (optUser.isEmpty()) {
             throw new ResourceNotFoundException("Não foi possível encontrar o usuário com o id: " + id);
         } else if (!optUser.get().getId().equals(userWhoIsRequesting.getId())) {
@@ -63,13 +63,13 @@ public class UserService implements ICRUDService<UserRequestDto, UserResponseDto
     }
 
     public UserResponseDto getMe(HttpServletRequest request) {
-        
+
         String header = request.getHeader("Authorization");
-        
+
         String token = header.substring(7);
-        
+
         String email = jwtUtil.getEmailFromJwt(token);
-        
+
         return getByEmail(email);
     }
 
@@ -106,6 +106,7 @@ public class UserService implements ICRUDService<UserRequestDto, UserResponseDto
         user.setEmail(user.getEmail().toLowerCase());
         user.setCreated_at(new Date());
         user.setUpdated_at(new Date());
+        user.setUserBalance(0.0);
 
         user = userRepository.save(user);
 
@@ -115,9 +116,11 @@ public class UserService implements ICRUDService<UserRequestDto, UserResponseDto
     @Override
     public UserResponseDto update(Long id, UserRequestDto dto) {
 
-        checkIfEmailAndPasswordAreNotNull(dto);
-
         User userWhoIsRequesting = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if (!passwordEncoder.matches(dto.getPassword(), userWhoIsRequesting.getPassword())) {
+            throw new BadCredentialsException("Senha incorreta.");
+        }
 
         UserResponseDto userDatabase = getById(id);
 
@@ -126,15 +129,30 @@ public class UserService implements ICRUDService<UserRequestDto, UserResponseDto
         }
 
         User user = mapper.map(dto, User.class);
-        String encodedPassword = passwordEncoder.encode(dto.getPassword());
 
-        user.setPassword(encodedPassword);
+        if (dto.getNewPassword() != null) {
 
+            if (dto.getNewPassword().length() < 8) {
+                throw new ResourceBadRequestException("A senha precisa ter no mínimo 8 caracteres.");
+            } else if (!dto.getNewPassword().equals(dto.getPasswordConfirmation())) {
+                throw new BadCredentialsException("A nova senha e a sua confirmação não conferem.");
+            } else if (dto.getNewPassword() == dto.getPassword()) {
+                throw new ResourceBadRequestException("A nova senha não pode ser igual a antiga.");
+            } else {
+                String encodedPassword = passwordEncoder.encode(dto.getNewPassword());
+                user.setPassword(encodedPassword);
+            }
+        } else {
+            String encodedPassword = passwordEncoder.encode(dto.getPassword());
+            user.setPassword(encodedPassword);
+        }
+
+        user.setUserBalance(userDatabase.getUserBalance());
         user.setId(id);
         user.setCreated_at(userDatabase.getCreated_at());
         user.setInative_at(userDatabase.getInative_at());
         user.setUpdated_at(new Date());
-        
+
         user = userRepository.save(user);
 
         return mapper.map(user, UserResponseDto.class);
@@ -144,16 +162,31 @@ public class UserService implements ICRUDService<UserRequestDto, UserResponseDto
     public void delete(Long id) {
 
         Optional<User> optUser = userRepository.findById(id);
-        
+
         if (optUser.isEmpty()) {
             throw new ResourceNotFoundException("Não foi possível encontrar o usuário com o id: " + id);
         }
-        
+
         User user = optUser.get();
 
         user.setInative_at(new Date());
 
         userRepository.save(user);
+    }
+
+    public UserResponseDto updateUserBalance(UserRequestDto dto) {
+
+        if (dto.getUserBalance() == null) {
+            throw new ResourceBadRequestException("A atualização do saldo não pode ser do tipo: 'null'");
+        }
+
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        user.setUserBalance(dto.getUserBalance());
+
+        user = userRepository.save(user);
+
+        return mapper.map(user, UserResponseDto.class);
     }
 
     private void checkIfEmailAndPasswordAreNotNull(UserRequestDto user) {

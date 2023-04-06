@@ -2,13 +2,17 @@ package com.example.myexpenses.dto.costcenter;
 
 import java.util.Date;
 
+import com.example.myexpenses.domain.Enum.Type;
+
 public class CostCenterRequestDto {
-  
+
   private Long id;
 
   private String description;
 
-  private String notes;
+  private boolean standard;
+
+  private Type type;
 
   private Date inative_at;
 
@@ -36,11 +40,19 @@ public class CostCenterRequestDto {
     this.description = description;
   }
 
-  public String getNotes() {
-    return notes;
+  public Type getType() {
+    return type;
   }
 
-  public void setNotes(String notes) {
-    this.notes = notes;
+  public void setType(Type type) {
+    this.type = type;
+  }
+
+  public boolean isStandard() {
+    return standard;
+  }
+
+  public void setStandard(boolean standard) {
+    this.standard = standard;
   }
 }

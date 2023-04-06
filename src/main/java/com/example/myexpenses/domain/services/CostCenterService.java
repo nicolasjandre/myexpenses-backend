@@ -31,7 +31,8 @@ public class CostCenterService implements ICRUDService<CostCenterRequestDto, Cos
 
       User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-      List<CostCenter> costCenters = costCenterRepository.findByUser(user);
+      List<CostCenter> costCenters = costCenterRepository.findByStandard(true);
+      costCenters.addAll(costCenterRepository.findByUser(user));
 
       return costCenters.stream()
             .map(costCenter -> mapper.map(costCenter, CostCenterResponseDto.class))
@@ -63,6 +64,7 @@ public class CostCenterService implements ICRUDService<CostCenterRequestDto, Cos
 
       User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
+      costCenter.setStandard(false);
       costCenter.setUser(user);
       costCenter = costCenterRepository.save(costCenter);
 

@@ -15,6 +15,8 @@ import com.example.myexpenses.dto.jwt.JwtRefreshResponseDto;
 import com.example.myexpenses.handler.TokenRefreshException;
 import com.example.myexpenses.security.JwtUtil;
 
+import io.swagger.v3.oas.annotations.Operation;
+
 @RestController
 @CrossOrigin(origins = "http://localhost:3000/")
 @RequestMapping("/api/refresh")
@@ -27,6 +29,7 @@ public class RefreshJwtController {
   private RefreshJwtService refreshJwtService;
 
   @PostMapping
+  @Operation(summary = "Endpoint to refresh an expired JWT using the refresh token. If refresh token is also expired or invalid, the unauthenticated user needs to login again.")
    public ResponseEntity<?> refreshtoken(@RequestBody JwtRefreshRequestDto request) {
      String requestRefreshToken = request.getRefreshToken();
  
