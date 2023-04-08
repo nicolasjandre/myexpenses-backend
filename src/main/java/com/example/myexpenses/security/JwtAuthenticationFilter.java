@@ -32,14 +32,12 @@ import jakarta.servlet.http.HttpServletResponse;
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     private AuthenticationManager authenticationManager;
-
     private JwtUtil jwtUtil;
-
     private RefreshJwtService refreshJwtService;
-
     private RefreshJwtRepository refreshJwtRepository;
 
-    public JwtAuthenticationFilter(AuthenticationManager authenticationManager, JwtUtil jwtUtil, RefreshJwtService refreshJwtService, RefreshJwtRepository refreshJwtRepository) {
+    public JwtAuthenticationFilter(AuthenticationManager authenticationManager, JwtUtil jwtUtil,
+            RefreshJwtService refreshJwtService, RefreshJwtRepository refreshJwtRepository) {
         super();
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
@@ -48,7 +46,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
         setFilterProcessesUrl("/api/auth");
     }
-    
+
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
             throws AuthenticationException {
@@ -83,11 +81,10 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         }
 
         String token = jwtUtil.generateToken(authResult);
-        
+
         UserResponseDto userResponseDto = new UserResponseDto();
         userResponseDto.setId(user.getId());
         userResponseDto.setEmail(user.getEmail());
-        userResponseDto.setAvatar(user.getAvatar());
         userResponseDto.setCreated_at(user.getCreated_at());
         userResponseDto.setName(user.getName());
         userResponseDto.setInative_at(user.getInative_at());
@@ -97,7 +94,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         loginResponseDto.setToken("Bearer " + token);
 
         if (notExpiredRefreshToken == null || notExpiredRefreshToken.isEmpty()) {
-            
+
             RefreshJwt newRefreshToken = refreshJwtService.createRefreshToken(user.getId());
             loginResponseDto.setRefreshToken(newRefreshToken.getToken());
 

@@ -13,6 +13,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Lob;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
@@ -34,11 +35,12 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private String password;
 
-    @Column(columnDefinition = "TEXT")
-    private String avatar;
-
     @Column
     private Double userBalance;
+
+    @Lob
+	@Column(columnDefinition = "TEXT")
+	private String image;
 
     @OneToMany(mappedBy = "user")
     private Set<CostCenter> costCenters;
@@ -87,14 +89,6 @@ public class User implements UserDetails {
         this.password = password;
     }
 
-    public String getAvatar() {
-        return avatar;
-    }
-
-    public void setAvatar(String avatar) {
-        this.avatar = avatar;
-    }
-
     public Date getCreated_at() {
         return created_at;
     }
@@ -133,6 +127,14 @@ public class User implements UserDetails {
 
     public Double getUserBalance() {
         return this.userBalance;
+    }
+    
+        public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
     }
 
     //#region Framework

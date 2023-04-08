@@ -22,7 +22,8 @@ public class DashboardController {
    private DashboardService dashboardService;
 
    @GetMapping
-   @Operation(summary = "Get the user who's requesting cash flow filtering by date, check description for details.", description = """
+   @Operation(summary = "Get the user who's requesting cash flow filtering by date, check description for details.", 
+   description = """
          <h2>Parameters example:</h2>
          Param1: "2023-10-10 00:00:00"<br>
          Param2: "2023-10-17 23:59:59.999"<br>

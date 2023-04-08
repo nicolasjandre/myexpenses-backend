@@ -10,9 +10,9 @@ public class UserResponseDto {
 
     private String email;
 
-    private String avatar;
-
     private Double userBalance;
+
+    private String image;
 
     private Date created_at;
 
@@ -42,14 +42,6 @@ public class UserResponseDto {
 
     public void setEmail(String email) {
         this.email = email;
-    }
-
-    public String getAvatar() {
-        return avatar;
-    }
-
-    public void setAvatar(String avatar) {
-        this.avatar = avatar;
     }
 
     public Date getCreated_at() {
@@ -82,5 +74,13 @@ public class UserResponseDto {
 
     public void setUserBalance(Double userBalance) {
         this.userBalance = userBalance;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
     }
 }

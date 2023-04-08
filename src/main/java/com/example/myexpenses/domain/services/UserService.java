@@ -147,6 +147,12 @@ public class UserService implements ICRUDService<UserRequestDto, UserResponseDto
             user.setPassword(encodedPassword);
         }
 
+        if (dto.getImage() != null) {
+
+            user.setImage(dto.getImage());
+
+        }
+
         user.setUserBalance(userDatabase.getUserBalance());
         user.setId(id);
         user.setCreated_at(userDatabase.getCreated_at());

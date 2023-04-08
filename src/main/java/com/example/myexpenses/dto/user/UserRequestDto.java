@@ -8,6 +8,8 @@ public class UserRequestDto {
 
     private Double userBalance;
 
+    private String image;
+
     private String password;
 
     private String newPassword;
@@ -60,5 +62,13 @@ public class UserRequestDto {
 
    public void setNewPassword(String newPassword) {
       this.newPassword = newPassword;
+   }
+
+   public String getImage() {
+      return image;
+   }
+
+   public void setImage(String image) {
+      this.image = image;
    }
 }

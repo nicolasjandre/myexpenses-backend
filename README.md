@@ -12,7 +12,7 @@
 <hr>
 <p align="center"><img src="./.github/swaggerdoc.png" alt="Swagger documentation"></p>
 <hr>
-<p align="center">Tecnologias utilizadas:
+<p align="center">Tecnologies:
 <br>Java 17
 <br>Spring 3.0.5
 <br>JWT
