@@ -119,7 +119,7 @@ public class UserService implements ICRUDService<UserRequestDto, UserResponseDto
         User userWhoIsRequesting = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         if (!passwordEncoder.matches(dto.getPassword(), userWhoIsRequesting.getPassword())) {
-            throw new BadCredentialsException("Senha incorreta.");
+            throw new BadCredentialsException("Não foi possível atualizar o perfil: senha atual incorreta.");
         }
 
         UserResponseDto userDatabase = getById(id);
@@ -133,7 +133,7 @@ public class UserService implements ICRUDService<UserRequestDto, UserResponseDto
         if (dto.getNewPassword() != null) {
 
             if (dto.getNewPassword().length() < 8) {
-                throw new ResourceBadRequestException("A senha precisa ter no mínimo 8 caracteres.");
+                throw new ResourceBadRequestException("A nova senha precisa ter no mínimo 8 caracteres.");
             } else if (!dto.getNewPassword().equals(dto.getPasswordConfirmation())) {
                 throw new BadCredentialsException("A nova senha e a sua confirmação não conferem.");
             } else if (dto.getNewPassword() == dto.getPassword()) {
@@ -147,9 +147,9 @@ public class UserService implements ICRUDService<UserRequestDto, UserResponseDto
             user.setPassword(encodedPassword);
         }
 
-        if (dto.getImage() != null) {
+        if (dto.getImage() == null) {
 
-            user.setImage(dto.getImage());
+            user.setImage(userWhoIsRequesting.getImage());
 
         }
 

@@ -73,6 +73,7 @@ public class UserController implements ICRUDController<UserRequestDto, UserRespo
             {<br>
                 "name": "Nicolas Jandre",<br>
                 "email": "nicolasjandre@live.com",<br>
+                "image": "base64 code here",<br>
                 "password": "12345678"<br>
             }</code>
 
@@ -81,6 +82,7 @@ public class UserController implements ICRUDController<UserRequestDto, UserRespo
                 <br><br><code>{<br>
                     "name": "Nicolas Jandre",<br>
                     "email": "nicolasjandre@live.com",<br>
+                    "image": "base64 code here",<br>
                     "password": "12345678", << old password<br>
                     "newPassword": "123456789", << new password<br>
                     "passwordConfirmation": "123456789" << new password confirmation<br>

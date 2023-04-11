@@ -39,8 +39,8 @@ public class User implements UserDetails {
     private Double userBalance;
 
     @Lob
-	@Column(columnDefinition = "TEXT")
-	private String image;
+    @Column(columnDefinition = "TEXT")
+    private String image;
 
     @OneToMany(mappedBy = "user")
     private Set<CostCenter> costCenters;
@@ -128,8 +128,8 @@ public class User implements UserDetails {
     public Double getUserBalance() {
         return this.userBalance;
     }
-    
-        public String getImage() {
+
+    public String getImage() {
         return image;
     }
 
@@ -137,7 +137,7 @@ public class User implements UserDetails {
         this.image = image;
     }
 
-    //#region Framework
+    // #region Framework
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return null;
@@ -172,6 +172,6 @@ public class User implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
-    //#endregion
-    
+    // #endregion
+
 }
