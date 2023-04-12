@@ -19,7 +19,7 @@ public interface ICRUDController<Req, Res> {
     ResponseEntity<Res> getById(@PathVariable Long id);
 
     @PostMapping
-    ResponseEntity<Res> create(@RequestBody Req dto);
+    ResponseEntity<List<Res>> create(@RequestBody Req dto);
 
     @PutMapping("/{id}")
     ResponseEntity<Res> update(@PathVariable Long id, @RequestBody Req dto);

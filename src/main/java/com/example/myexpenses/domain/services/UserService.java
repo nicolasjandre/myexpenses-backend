@@ -1,5 +1,6 @@
 package com.example.myexpenses.domain.services;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -85,7 +86,7 @@ public class UserService implements ICRUDService<UserRequestDto, UserResponseDto
     }
 
     @Override
-    public UserResponseDto create(UserRequestDto dto) {
+    public List<UserResponseDto> create(UserRequestDto dto) {
 
         checkIfEmailAndPasswordAreNotNull(dto);
 
@@ -109,8 +110,12 @@ public class UserService implements ICRUDService<UserRequestDto, UserResponseDto
         user.setUserBalance(0.0);
 
         user = userRepository.save(user);
+        List<User> users = new ArrayList<>();
+        users.add(user);
 
-        return mapper.map(user, UserResponseDto.class);
+        return users.stream()
+                .map(mappedUser -> mapper.map(mappedUser, UserResponseDto.class))
+                .collect(Collectors.toList());
     }
 
     @Override

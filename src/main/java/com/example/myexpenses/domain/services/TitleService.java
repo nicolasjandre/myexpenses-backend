@@ -1,5 +1,10 @@
 package com.example.myexpenses.domain.services;
 
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -10,9 +15,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import com.example.myexpenses.domain.exception.ResourceBadRequestException;
 import com.example.myexpenses.domain.exception.ResourceNotFoundException;
+import com.example.myexpenses.domain.model.CreditCard;
+import com.example.myexpenses.domain.model.CreditCardInvoice;
 import com.example.myexpenses.domain.model.Title;
 import com.example.myexpenses.domain.model.User;
+import com.example.myexpenses.domain.repository.CreditCardInvoiceRepository;
+import com.example.myexpenses.domain.repository.CreditCardRepository;
 import com.example.myexpenses.domain.repository.TitleRepository;
 import com.example.myexpenses.dto.title.TitleRequestDto;
 import com.example.myexpenses.dto.title.TitleResponseDto;
@@ -22,6 +32,18 @@ public class TitleService implements ICRUDService<TitleRequestDto, TitleResponse
 
    @Autowired
    private TitleRepository titleRepository;
+
+   @Autowired
+   private CreditCardInvoiceRepository creditCardInvoiceRepository;
+
+   @Autowired
+   private CreditCardInvoiceService cardInvoiceService;
+
+   @Autowired
+   CreditCardRepository creditCardRepository;
+
+   @Autowired
+   CreditCardService creditCardService;
 
    @Autowired
    private ModelMapper mapper;
@@ -38,14 +60,16 @@ public class TitleService implements ICRUDService<TitleRequestDto, TitleResponse
    }
 
    @Override
-   public TitleResponseDto getById(Long id) {      
+   public TitleResponseDto getById(Long id) {
 
       Optional<Title> optTitle = titleRepository.findById(id);
+
+      System.out.println(new Date());
 
       if (optTitle.isEmpty()) {
          throw new ResourceNotFoundException("Não foi possível encontrar o título com o id: " + id);
       }
-      
+
       User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
       if (optTitle.get().getUser().getId() != user.getId()) {
@@ -56,19 +80,76 @@ public class TitleService implements ICRUDService<TitleRequestDto, TitleResponse
    }
 
    @Override
-   public TitleResponseDto create(TitleRequestDto dto) {
+   public List<TitleResponseDto> create(TitleRequestDto dto) {
+
+      if (dto.getInstallment() > 99) {
+         throw new ResourceBadRequestException("O número máximo de prestações é 99.");
+      }
 
       titleValidation(dto);
 
-      Title title = mapper.map(dto, Title.class);
-
       User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+      CreditCard creditCard = creditCardRepository.findById(dto.getCreditCardId()).get();
 
-      title.setCreated_at(new Date());
-      title.setUser(user);
-      title = titleRepository.save(title);
+      if (!creditCard.getUser().getId().equals(user.getId())) {
+         throw new ResourceBadRequestException("Você não pode alterar dados de outros usuários.");
+      }
 
-      return mapper.map(title, TitleResponseDto.class);
+      int installment = dto.getInstallment();
+
+      List<Title> titles = new ArrayList<>();
+
+      Instant instant = dto.getReferenceDate().toInstant();
+      LocalDate titleStartDate = instant.atZone(ZoneId.systemDefault()).toLocalDate();
+
+      cardInvoiceService.generateInvoicesWhenCreatingTitles(titleStartDate, installment, dto.getCreditCardId());
+
+      for (int i = 1; i <= installment; i++) {
+         Title title = new Title();
+         Title titleDto = mapper.map(dto, Title.class);
+
+         Date referenceDate = titleDto.getReferenceDate();
+
+         Calendar calendar = Calendar.getInstance();
+         calendar.setTime(referenceDate);
+
+         if (i != 1) {
+            calendar.add(Calendar.MONTH, i - 1);
+         }
+
+         referenceDate = calendar.getTime();
+
+         Instant instantReferenceDate = referenceDate.toInstant();
+         LocalDate localReferenceDate = instantReferenceDate.atZone(ZoneId.systemDefault()).toLocalDate()
+               .withDayOfMonth(creditCard.getDue_date());
+
+         CreditCardInvoice invoice = creditCardInvoiceRepository.findByCreditCardAndDueDate(creditCard,
+               localReferenceDate);
+
+         Double formattedValue = Math.round((titleDto.getValue() / installment) * 100.0) / 100.0;
+         String titleDescription = installment > 1 ? titleDto.getDescription() + " (" + i + ")"
+               : titleDto.getDescription();
+
+         title.setDescription(titleDescription);
+         title.setCreatedAt(new Date());
+         title.setValue(formattedValue);
+         title.setUser(user);
+         title.setInvoice(invoice);
+         title.setCostCenter(titleDto.getCostCenter());
+         title.setType(titleDto.getType());
+         title.setReferenceDate(referenceDate);
+         title.setNotes(titleDto.getNotes());
+
+         title = titleRepository.save(title);
+
+         titles.add(title);
+      }
+
+      creditCardService.updateCreditCardLimitWhenCreatingTitles(creditCard);
+
+      return titles.stream()
+            .map(mappedTitle -> mapper.map(mappedTitle, TitleResponseDto.class))
+            .collect(Collectors.toList());
    }
 
    @Override
@@ -83,7 +164,7 @@ public class TitleService implements ICRUDService<TitleRequestDto, TitleResponse
       User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
       title.setUser(user);
-      title.setInative_at(titleDatabase.getInative_at());
+      title.setInativeAt(titleDatabase.getInativeAt());
       title.setId(id);
       title = titleRepository.save(title);
 
@@ -97,18 +178,18 @@ public class TitleService implements ICRUDService<TitleRequestDto, TitleResponse
 
       Title title = mapper.map(titleDto, Title.class);
 
-      title.setInative_at(new Date());
+      title.setInativeAt(new Date());
 
       titleRepository.save(title);
    }
 
-   public List<TitleResponseDto> getCashFlowByDueDate(String initialDate, String finalDate) {
+   public List<TitleResponseDto> getCashFlowByDueDate(Date initialDate, Date finalDate) {
 
       User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
       Long userId = user.getId();
 
-      List<Title> titles = titleRepository.getByDueDate(initialDate, finalDate, userId);
+      List<Title> titles = titleRepository.findByCreatedAtBetweenAndUserId(initialDate, finalDate, userId);
 
       return titles.stream()
             .map(title -> mapper.map(title, TitleResponseDto.class))
@@ -117,7 +198,7 @@ public class TitleService implements ICRUDService<TitleRequestDto, TitleResponse
 
    private void titleValidation(TitleRequestDto dto) {
 
-      if (dto.getValue() == null || dto.getValue() == 0 || dto.getDueDate() == null ||
+      if (dto.getValue() == null || dto.getValue() == 0 ||
 
             dto.getDescription() == null || dto.getType() == null) {
 

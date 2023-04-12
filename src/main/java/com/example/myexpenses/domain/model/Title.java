@@ -3,6 +3,7 @@ package com.example.myexpenses.domain.model;
 import java.util.Date;
 
 import com.example.myexpenses.domain.Enum.Type;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -25,27 +26,30 @@ public class Title {
     private String description;
 
     @ManyToOne
+    @JsonBackReference(value = "oneUserToManyTitles")
     @JoinColumn(name = "user_id")
     private User user;
 
     private Type type;
+    
+    @ManyToOne
+    @JsonBackReference(value = "oneInvoiceToManyTitles")
+    @JoinColumn(name = "invoice_id")
+    private CreditCardInvoice invoice;
 
     @ManyToOne
+    @JsonBackReference(value = "oneCostCenterToManyTitles")
     @JoinColumn(name="costcenter_id", nullable=false)
     private CostCenter costCenter;
 
     @Column(nullable = false)
     private Double value;
 
-    private Date created_at;
+    private Date createdAt;
 
-    private Date inative_at;
+    private Date inativeAt;
 
     private Date referenceDate;
-
-    private Date dueDate;
-
-    private Date payDate;
 
     @Column(columnDefinition = "TEXT")
     private String notes;
@@ -90,44 +94,12 @@ public class Title {
         this.value = value;
     }
 
-    public Date getCreated_at() {
-        return created_at;
-    }
-
-    public void setCreated_at(Date created_at) {
-        this.created_at = created_at;
-    }
-
-    public Date getInative_at() {
-        return inative_at;
-    }
-
-    public void setInative_at(Date inative_at) {
-        this.inative_at = inative_at;
-    }
-
     public Date getReferenceDate() {
         return referenceDate;
     }
 
     public void setReferenceDate(Date referenceDate) {
         this.referenceDate = referenceDate;
-    }
-
-    public Date getDueDate() {
-        return dueDate;
-    }
-
-    public void setDueDate(Date dueDate) {
-        this.dueDate = dueDate;
-    }
-
-    public Date getPayDate() {
-        return payDate;
-    }
-
-    public void setPayDate(Date payDate) {
-        this.payDate = payDate;
     }
 
     public String getNotes() {
@@ -144,5 +116,29 @@ public class Title {
 
     public void setCostCenter(CostCenter costCenter) {
         this.costCenter = costCenter;
+    }
+
+    public CreditCardInvoice getInvoice() {
+        return invoice;
+    }
+
+    public void setInvoice(CreditCardInvoice invoice) {
+        this.invoice = invoice;
+    }
+
+    public Date getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public Date getInativeAt() {
+        return inativeAt;
+    }
+
+    public void setInativeAt(Date inativeAt) {
+        this.inativeAt = inativeAt;
     }
 }

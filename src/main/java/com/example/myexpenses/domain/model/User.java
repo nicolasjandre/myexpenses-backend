@@ -8,6 +8,8 @@ import java.util.Set;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -43,7 +45,12 @@ public class User implements UserDetails {
     private String image;
 
     @OneToMany(mappedBy = "user")
+    @JsonManagedReference(value = "oneUserToManyCostCenters")
     private Set<CostCenter> costCenters;
+
+    @OneToMany(mappedBy = "user")
+    @JsonManagedReference(value = "oneUserToManyCreditCards")
+    private Set<CreditCard> creditCards;
 
     @Column(nullable = false)
     private Date created_at;
@@ -55,6 +62,7 @@ public class User implements UserDetails {
     private Date inative_at;
 
     @OneToMany(mappedBy = "user")
+    @JsonManagedReference(value = "oneUserToManyTitles")
     private List<Title> titles;
 
     public Long getId() {

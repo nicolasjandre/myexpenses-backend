@@ -57,9 +57,9 @@ public class UserController implements ICRUDController<UserRequestDto, UserRespo
             "passwordConfirmation": "12345678"
             }
     """)
-    public ResponseEntity<UserResponseDto> create(UserRequestDto dto) {
+    public ResponseEntity<List<UserResponseDto>> create(UserRequestDto dto) {
 
-        UserResponseDto userDto = userService.create(dto);
+        List<UserResponseDto> userDto = userService.create(dto);
 
         return new ResponseEntity<>(userDto, HttpStatus.CREATED);
     }

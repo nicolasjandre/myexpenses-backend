@@ -46,9 +46,9 @@ public class CostCenterController implements ICRUDController<CostCenterRequestDt
          }</code>
 
              """)
-   public ResponseEntity<CostCenterResponseDto> create(CostCenterRequestDto dto) {
+   public ResponseEntity<List<CostCenterResponseDto>> create(CostCenterRequestDto dto) {
 
-      CostCenterResponseDto costCenterDto = costCenterService.create(dto);
+      List<CostCenterResponseDto> costCenterDto = costCenterService.create(dto);
 
       return new ResponseEntity<>(costCenterDto, HttpStatus.CREATED);
    }

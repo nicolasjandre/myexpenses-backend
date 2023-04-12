@@ -51,9 +51,9 @@ public class TitleController implements ICRUDController<TitleRequestDto, TitleRe
       }
       </code>
          """)
-   public ResponseEntity<TitleResponseDto> create(TitleRequestDto dto) {
+   public ResponseEntity<List<TitleResponseDto>> create(TitleRequestDto dto) {
 
-      TitleResponseDto titleDto = titleService.create(dto);
+      List<TitleResponseDto> titleDto = titleService.create(dto);
 
       return new ResponseEntity<>(titleDto, HttpStatus.CREATED);
    }

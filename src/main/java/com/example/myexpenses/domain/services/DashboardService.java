@@ -1,8 +1,11 @@
 package com.example.myexpenses.domain.services;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +23,22 @@ public class DashboardService {
 
    public DashboardResponseDto getCashFlow(String initialDate, String finalDate) {
 
-      List<TitleResponseDto> titles = titleService.getCashFlowByDueDate(initialDate, finalDate);
+      SimpleDateFormat inputFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+      Date sqlDate1 = new Date();
+      Date sqlDate2 = new Date();
+      try {
+         java.util.Date utilDate1 = inputFormatter.parse(initialDate);
+         java.util.Date utilDate2 = inputFormatter.parse(finalDate);
+
+         sqlDate1 = new Date(utilDate1.getTime());
+         sqlDate2 = new Date(utilDate2.getTime());
+
+         System.out.println(sqlDate1);
+      } catch (ParseException e) {
+         System.out.println("Failed to parse date: " + e.getMessage());
+      }
+
+      List<TitleResponseDto> titles = titleService.getCashFlowByDueDate(sqlDate1, sqlDate2);
 
       Double totalExpenses = 0.0;
       Double totalIncomes = 0.0;
@@ -39,11 +57,14 @@ public class DashboardService {
          }
       }
 
-      Collections.sort(expenseTitles, Comparator.comparing(TitleResponseDto::getReferenceDate));
-      Collections.sort(incomeTitles, Comparator.comparing(TitleResponseDto::getReferenceDate));
+      Collections.sort(expenseTitles, Comparator.comparing(TitleResponseDto::getCreatedAt));
+      Collections.sort(incomeTitles, Comparator.comparing(TitleResponseDto::getCreatedAt));
 
       balance = totalIncomes - totalExpenses;
 
-      return new DashboardResponseDto(totalExpenses, totalIncomes, balance, expenseTitles, incomeTitles);
+      DashboardResponseDto dashboardResponseDto = new DashboardResponseDto(totalExpenses, totalIncomes, balance,
+            expenseTitles, incomeTitles);
+
+      return dashboardResponseDto;
    }
 }

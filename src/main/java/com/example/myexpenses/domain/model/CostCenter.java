@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.example.myexpenses.domain.Enum.Type;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -38,11 +39,12 @@ public class CostCenter {
     private Date inative_at;
 
     @ManyToOne
+    @JsonBackReference(value = "oneUserToManyCostCenters")
     @JoinColumn(name = "user_id")
     private User user;
 
     @OneToMany(mappedBy = "costCenter")
-    @JsonBackReference
+    @JsonManagedReference(value = "oneCostCenterToManyTitles")
     private List<Title> titles;
 
     public long getId() {

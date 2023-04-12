@@ -1,5 +1,6 @@
 package com.example.myexpenses.domain.repository;
 
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -11,16 +12,15 @@ import com.example.myexpenses.domain.model.User;
 
 public interface TitleRepository extends JpaRepository<Title, Long> {
 
-      @Query(nativeQuery = true, value = "SELECT * FROM public.title " +
-                  "WHERE reference_date " +
-                  "BETWEEN TO_TIMESTAMP(:initialDate, 'YYYY-MM-DD hh24:MI:SS') AND " +
-                  "TO_TIMESTAMP(:finalDate, 'YYYY-MM-DD hh24:MI:SS') AND " + 
-                  "user_id = :userId")
-      List<Title> getByDueDate(
-                  @Param("initialDate") String initialDate,
-                  @Param("finalDate") String finalDate,
-                  @Param("userId") Long userId
-                  );
-
       List<Title> findByUser(User user);
+
+      List<Title> findByCreatedAtBetweenAndUserId(@Param("initialDate") Date initialDate,
+                  @Param("finalDate") Date finalDate,
+                  @Param("userId") Long userId);
+
+      @Query(nativeQuery = true, value = "select title.* from public.title " +
+                  "left join credit_card_invoice ON credit_card_invoice.invoice_id = title.invoice_id " +
+                  "where credit_card_invoice.is_paid = false " +
+                  "and credit_card_invoice.creditcard_id = :creditCardId")
+      List<Title> getUnpaidTitlesByCreditCard(@Param("creditCardId") Long creditCardId);
 }

@@ -1,5 +1,6 @@
 package com.example.myexpenses.domain.services;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -47,7 +48,7 @@ public class CostCenterService implements ICRUDService<CostCenterRequestDto, Cos
       if (costCenterOpt.isEmpty()) {
          throw new ResourceNotFoundException("Não foi possível encontrar o centro de custo com o id: " + id);
       }
-      
+
       User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
       if (costCenterOpt.get().getUser().getId() != user.getId()) {
@@ -58,7 +59,7 @@ public class CostCenterService implements ICRUDService<CostCenterRequestDto, Cos
    }
 
    @Override
-   public CostCenterResponseDto create(CostCenterRequestDto dto) {
+   public List<CostCenterResponseDto> create(CostCenterRequestDto dto) {
 
       CostCenter costCenter = mapper.map(dto, CostCenter.class);
 
@@ -68,12 +69,17 @@ public class CostCenterService implements ICRUDService<CostCenterRequestDto, Cos
       costCenter.setUser(user);
       costCenter = costCenterRepository.save(costCenter);
 
-      return mapper.map(costCenter, CostCenterResponseDto.class);
+      List<CostCenter> costCenters = new ArrayList<>();
+      costCenters.add(costCenter);
+
+      return costCenters.stream()
+            .map(costCenterMapped -> mapper.map(costCenterMapped, CostCenterResponseDto.class))
+            .collect(Collectors.toList());
    }
 
    @Override
    public CostCenterResponseDto update(Long id, CostCenterRequestDto dto) {
-     
+
       CostCenterResponseDto costCenterDatabase = getById(id);
 
       CostCenter costCenter = mapper.map(dto, CostCenter.class);
@@ -92,9 +98,9 @@ public class CostCenterService implements ICRUDService<CostCenterRequestDto, Cos
    public void delete(Long id) {
 
       CostCenterResponseDto costCenterDto = getById(id);
-      
+
       CostCenter costCenter = mapper.map(costCenterDto, CostCenter.class);
-        
+
       costCenter.setInative_at(new Date());
 
       costCenterRepository.save(costCenter);

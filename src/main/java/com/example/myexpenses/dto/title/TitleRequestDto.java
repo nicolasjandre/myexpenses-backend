@@ -3,36 +3,32 @@ package com.example.myexpenses.dto.title;
 import java.util.Date;
 
 import com.example.myexpenses.domain.Enum.Type;
+import com.example.myexpenses.domain.model.CreditCardInvoice;
 import com.example.myexpenses.dto.costcenter.CostCenterRequestDto;
 
 public class TitleRequestDto {
-   private Long id;
 
    private String description;
 
    private Type type;
 
+   private int installment;
+
+   private Long creditCardId;
+
    private CostCenterRequestDto costCenter;
+
+   private CreditCardInvoice invoice;
 
    private Double value;
 
-   private Date created_at;
+   private Date createdAt;
+
+   private Date inativeAt;
 
    private Date referenceDate;
 
-   private Date dueDate;
-
-   private Date payDate;
-
    private String notes;
-
-   public Long getId() {
-      return id;
-   }
-
-   public void setId(Long id) {
-      this.id = id;
-   }
 
    public String getDescription() {
       return description;
@@ -66,14 +62,6 @@ public class TitleRequestDto {
       this.value = value;
    }
 
-   public Date getCreated_at() {
-      return created_at;
-   }
-
-   public void setCreated_at(Date created_at) {
-      this.created_at = created_at;
-   }
-
    public Date getReferenceDate() {
       return referenceDate;
    }
@@ -82,28 +70,52 @@ public class TitleRequestDto {
       this.referenceDate = referenceDate;
    }
 
-   public Date getDueDate() {
-      return dueDate;
-   }
-
-   public void setDueDate(Date dueDate) {
-      this.dueDate = dueDate;
-   }
-
-   public Date getPayDate() {
-      return payDate;
-   }
-
-   public void setPayDate(Date payDate) {
-      this.payDate = payDate;
-   }
-
    public String getNotes() {
       return notes;
    }
 
    public void setNotes(String notes) {
       this.notes = notes;
+   }
+
+   public CreditCardInvoice getInvoice() {
+      return invoice;
+   }
+
+   public void setInvoice(CreditCardInvoice invoice) {
+      this.invoice = invoice;
+   }
+
+   public int getInstallment() {
+      return installment;
+   }
+
+   public void setInstallment(int installment) {
+      this.installment = installment;
+   }
+
+   public Long getCreditCardId() {
+      return creditCardId;
+   }
+
+   public void setCreditCardId(Long creditCardId) {
+      this.creditCardId = creditCardId;
+   }
+
+   public Date getCreatedAt() {
+      return createdAt;
+   }
+
+   public void setCreatedAt(Date createdAt) {
+      this.createdAt = createdAt;
+   }
+
+   public Date getInativeAt() {
+      return inativeAt;
+   }
+
+   public void setInativeAt(Date inativeAt) {
+      this.inativeAt = inativeAt;
    }
 
 }

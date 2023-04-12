@@ -67,5 +67,4 @@ public class DashboardResponseDto {
    public void setIncomeTitles(List<TitleResponseDto> incomeTitles) {
       this.incomeTitles = incomeTitles;
    }
-
 }
