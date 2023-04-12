@@ -95,7 +95,11 @@ public class TitleService implements ICRUDService<TitleRequestDto, TitleResponse
          throw new ResourceBadRequestException("Você não pode alterar dados de outros usuários.");
       }
 
+      int creditCardClosingDay = creditCard.getClosingDay();
       int installment = dto.getInstallment();
+      Double formattedInstallmentValue = Math.round((dto.getValue() / installment) * 100.0) / 100.0;
+      Double totalInstallmentsValue = formattedInstallmentValue * installment;
+      Double remainingAmount = dto.getValue() - totalInstallmentsValue;
 
       List<Title> titles = new ArrayList<>();
 
@@ -123,16 +127,27 @@ public class TitleService implements ICRUDService<TitleRequestDto, TitleResponse
          LocalDate localReferenceDate = instantReferenceDate.atZone(ZoneId.systemDefault()).toLocalDate()
                .withDayOfMonth(creditCard.getDue_date());
 
+         if (localReferenceDate.getDayOfMonth() >= creditCardClosingDay) {
+            localReferenceDate = localReferenceDate.plusMonths(1);
+         }
+         ;
+
          CreditCardInvoice invoice = creditCardInvoiceRepository.findByCreditCardAndDueDate(creditCard,
                localReferenceDate);
 
-         Double formattedValue = Math.round((titleDto.getValue() / installment) * 100.0) / 100.0;
+         formattedInstallmentValue = Math.round((dto.getValue() / installment) * 100.0) / 100.0;
+
+         if (remainingAmount > 0) {
+            formattedInstallmentValue += 0.01;
+            remainingAmount -= 0.01;
+         }
+
          String titleDescription = installment > 1 ? titleDto.getDescription() + " (" + i + ")"
                : titleDto.getDescription();
 
          title.setDescription(titleDescription);
          title.setCreatedAt(new Date());
-         title.setValue(formattedValue);
+         title.setValue(formattedInstallmentValue);
          title.setUser(user);
          title.setInvoice(invoice);
          title.setCostCenter(titleDto.getCostCenter());

@@ -37,16 +37,23 @@ public class CreditCardInvoiceService {
       List<CreditCardInvoice> invoices = creditCardInvoiceRepository.findByCreditCard(creditCard);
       List<CreditCardInvoice> createdInvoices = new ArrayList<>();
 
+      int creditCardClosingDay = creditCard.getClosingDay();
+
+      startDate = startDate.getDayOfMonth() >= creditCardClosingDay
+      ? startDate.plusMonths(1)
+      : startDate;
+
       int currentYear = startDate.getYear();
       Month currentMonth = startDate.getMonth();
 
       LocalDate endDate = startDate.plusMonths(installment - 1);
+
       LocalDate currentDate = startDate;
 
       while (currentDate.isBefore(endDate) || currentDate.equals(endDate)) {
          boolean alreadyExists = false;
 
-         int closingDay = creditCard.getClosing_day();
+         int closingDay = creditCard.getClosingDay();
          int dueDateDay = creditCard.getDue_date();
          LocalDate dueDate = LocalDate.of(currentYear, currentMonth, dueDateDay);
 

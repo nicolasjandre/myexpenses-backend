@@ -18,7 +18,7 @@ public class CreditCardRequestDto {
 
    private Bank bank;
 
-   private int closing_day;
+   private int closingDay;
 
    private int due_date;
 
@@ -56,14 +56,6 @@ public class CreditCardRequestDto {
       this.bank = bank;
    }
 
-   public int getClosing_day() {
-      return closing_day;
-   }
-
-   public void setClosing_day(int closing_day) {
-      this.closing_day = closing_day;
-   }
-
    public User getUser() {
       return user;
    }
@@ -94,5 +86,13 @@ public class CreditCardRequestDto {
 
    public void setCreditLimit(Double creditLimit) {
       this.creditLimit = creditLimit;
+   }
+
+   public int getClosingDay() {
+      return closingDay;
+   }
+
+   public void setClosingDay(int closingDay) {
+      this.closingDay = closingDay;
    }
 }

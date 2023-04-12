@@ -40,7 +40,7 @@ public class CreditCard {
    private Bank bank;
 
    @Column(nullable = false)
-   private int closing_day;
+   private int closingDay;
 
    @Column(nullable = false)
    private int due_date;
@@ -86,14 +86,6 @@ public class CreditCard {
       this.bank = bank;
    }
 
-   public int getClosing_day() {
-      return closing_day;
-   }
-
-   public void setClosing_day(int closing_day) {
-      this.closing_day = closing_day;
-   }
-
    public int getDue_date() {
       return due_date;
    }
@@ -132,5 +124,13 @@ public class CreditCard {
 
    public void setAvailableLimit(Double availableLimit) {
       this.availableLimit = availableLimit;
+   }
+
+   public int getClosingDay() {
+      return closingDay;
+   }
+
+   public void setClosingDay(int closingDay) {
+      this.closingDay = closingDay;
    }
 }

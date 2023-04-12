@@ -18,6 +18,8 @@ public class TitleResponseDto {
 
    private Double value;
 
+   private Date referenceDate;
+
    private Date createdAt;
 
    private Date inativeAt;
@@ -86,5 +88,13 @@ public class TitleResponseDto {
 
    public void setInativeAt(Date inativeAt) {
       this.inativeAt = inativeAt;
+   }
+
+   public Date getReferenceDate() {
+      return referenceDate;
+   }
+
+   public void setReferenceDate(Date referenceDate) {
+      this.referenceDate = referenceDate;
    }
 }
