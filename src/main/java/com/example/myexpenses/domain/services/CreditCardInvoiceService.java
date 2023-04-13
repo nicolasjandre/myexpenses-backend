@@ -54,7 +54,7 @@ public class CreditCardInvoiceService {
          boolean alreadyExists = false;
 
          int closingDay = creditCard.getClosingDay();
-         int dueDateDay = creditCard.getDue_date();
+         int dueDateDay = creditCard.getDueDay();
          LocalDate dueDate = LocalDate.of(currentYear, currentMonth, dueDateDay);
 
          for (CreditCardInvoice invoice : invoices) {

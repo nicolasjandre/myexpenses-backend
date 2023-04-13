@@ -38,15 +38,48 @@ public class TitleController implements ICRUDController<TitleRequestDto, TitleRe
    }
 
    @Override
-   @Operation(summary = "Create a new title for the user who is requesting.", description = """
-      <h2>Request body example:</h2>
+   @Operation(summary = "Create a new title for the user who is requesting. Check description to see the details.", description = """
+      <h2>Important: </h2>
+      The creditCardId should be 0 when creating a Wallet title. <br>
+      The number of installment is REQUIRED when creating a credit card expense. <br>
+      The number of installment is not required when creating a WALLET expense. <br>
+
+      <br>
+      <br>
+
+      <h2>Request body INCOME:</h2>
       <code>
       {<br>
-         "description": "Abajur",<br>
+         "description": "Income Example",<br>
+         "type": "INCOME",<br>
+         "value": 54.97,<br>
+         "referenceDate": "2023-04-11T19:35:36",<br>
+         "creditCardId": 0, << Credit card ID should be 0 when creating incomes or wallet expenses<br>
+         "costCenter": { "id": 1 }<br>
+      }
+      </code>
+
+      <h2>Request body for wallet expense:</h2>
+      <code>
+      {<br>
+         "description": "Expense Example",<br>
          "type": "EXPENSE",<br>
-         "value": 50,<br>
-         "referenceDate": "2023-04-04T16:40:36",<br>
-         "dueDate": "2023-04-25T16:40:36",<br>
+         "value": 54.97,<br>
+         "referenceDate": "2023-04-11T19:35:36",<br>
+         "creditCardId": 0, << Credit card ID should be 0 when creating incomes or wallet expenses <br>
+         "costCenter": { "id": 1 }<br>
+      }
+      </code>
+
+      <h2>Request body for CREDIT CARD expense:</h2>
+      <code>
+      {<br>
+         "description": "Expense Example",<br>
+         "type": "EXPENSE",<br>
+         "value": 54.97,<br>
+         "referenceDate": "2023-04-11T19:35:36",<br>
+         "installment": "12" << max of 99 <br>
+         "creditCardId": 1, << Credit card ID <br>
          "costCenter": { "id": 1 }<br>
       }
       </code>

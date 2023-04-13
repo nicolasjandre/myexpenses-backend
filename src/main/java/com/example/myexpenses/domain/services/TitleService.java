@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import com.example.myexpenses.domain.Enum.Type;
 import com.example.myexpenses.domain.exception.ResourceBadRequestException;
 import com.example.myexpenses.domain.exception.ResourceNotFoundException;
 import com.example.myexpenses.domain.model.CreditCard;
@@ -24,6 +25,7 @@ import com.example.myexpenses.domain.model.User;
 import com.example.myexpenses.domain.repository.CreditCardInvoiceRepository;
 import com.example.myexpenses.domain.repository.CreditCardRepository;
 import com.example.myexpenses.domain.repository.TitleRepository;
+import com.example.myexpenses.domain.repository.UserRepository;
 import com.example.myexpenses.dto.title.TitleRequestDto;
 import com.example.myexpenses.dto.title.TitleResponseDto;
 
@@ -40,10 +42,13 @@ public class TitleService implements ICRUDService<TitleRequestDto, TitleResponse
    private CreditCardInvoiceService cardInvoiceService;
 
    @Autowired
-   CreditCardRepository creditCardRepository;
+   private UserRepository userRepository;
 
    @Autowired
-   CreditCardService creditCardService;
+   private CreditCardRepository creditCardRepository;
+
+   @Autowired
+   private CreditCardService creditCardService;
 
    @Autowired
    private ModelMapper mapper;
@@ -82,26 +87,55 @@ public class TitleService implements ICRUDService<TitleRequestDto, TitleResponse
    @Override
    public List<TitleResponseDto> create(TitleRequestDto dto) {
 
-      if (dto.getInstallment() > 99) {
-         throw new ResourceBadRequestException("O número máximo de prestações é 99.");
+      if (dto.getCreditCardId() == 0) {
+         return createWalletIncomeOrExpense(dto);
+      } else {
+         return createCreditCardExpense(dto);
       }
 
-      titleValidation(dto);
+   }
+
+   public List<TitleResponseDto> createWalletIncomeOrExpense(TitleRequestDto dto) {
+      
+      List<Title> titles = new ArrayList<>();
+      User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+      titleValidation(dto, null, null);
+
+      Title title = mapper.map(dto, Title.class);
+      title.setUser(user);
+      title.setCreatedAt(new Date());
+
+      title = titleRepository.save(title);
+      titles.add(title);
+
+      Double newUserBalance = 0.0;
+
+      if (dto.getType() == Type.INCOME) {
+         newUserBalance = user.getUserBalance() + dto.getValue();
+      } else if (dto.getType() == Type.EXPENSE) {
+         newUserBalance = user.getUserBalance() - dto.getValue();
+      }
+
+      user.setUserBalance(newUserBalance);
+      user = userRepository.save(user);
+
+      return titles.stream()
+            .map(mappedTitle -> mapper.map(mappedTitle, TitleResponseDto.class))
+            .collect(Collectors.toList());
+   }
+
+   public List<TitleResponseDto> createCreditCardExpense(TitleRequestDto dto) {
 
       User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
       CreditCard creditCard = creditCardRepository.findById(dto.getCreditCardId()).get();
 
-      if (!creditCard.getUser().getId().equals(user.getId())) {
-         throw new ResourceBadRequestException("Você não pode alterar dados de outros usuários.");
-      }
-
-      int creditCardClosingDay = creditCard.getClosingDay();
-      int installment = dto.getInstallment();
-      Double formattedInstallmentValue = Math.round((dto.getValue() / installment) * 100.0) / 100.0;
-      Double totalInstallmentsValue = formattedInstallmentValue * installment;
-      Double remainingAmount = dto.getValue() - totalInstallmentsValue;
+      titleValidation(dto, creditCard, user);
 
       List<Title> titles = new ArrayList<>();
+      Double remainingAmount = getRemainingAmountFromInstallments(dto);
+      int installment = dto.getInstallment();
+      int creditCardClosingDay = creditCard.getClosingDay();
 
       Instant instant = dto.getReferenceDate().toInstant();
       LocalDate titleStartDate = instant.atZone(ZoneId.systemDefault()).toLocalDate();
@@ -113,36 +147,32 @@ public class TitleService implements ICRUDService<TitleRequestDto, TitleResponse
          Title titleDto = mapper.map(dto, Title.class);
 
          Date referenceDate = titleDto.getReferenceDate();
-
          Calendar calendar = Calendar.getInstance();
          calendar.setTime(referenceDate);
-
          if (i != 1) {
             calendar.add(Calendar.MONTH, i - 1);
+            referenceDate = calendar.getTime();
          }
 
-         referenceDate = calendar.getTime();
-
          Instant instantReferenceDate = referenceDate.toInstant();
-         LocalDate localReferenceDate = instantReferenceDate.atZone(ZoneId.systemDefault()).toLocalDate()
-               .withDayOfMonth(creditCard.getDue_date());
+         LocalDate localReferenceDate = instantReferenceDate.atZone(ZoneId.systemDefault()).toLocalDate();
 
          if (localReferenceDate.getDayOfMonth() >= creditCardClosingDay) {
             localReferenceDate = localReferenceDate.plusMonths(1);
          }
-         ;
 
-         CreditCardInvoice invoice = creditCardInvoiceRepository.findByCreditCardAndDueDate(creditCard,
-               localReferenceDate);
+         CreditCardInvoice invoice = creditCardInvoiceRepository
+               .findByCreditCardAndDueDate(creditCard, localReferenceDate.withDayOfMonth(creditCard.getDueDay()));
 
-         formattedInstallmentValue = Math.round((dto.getValue() / installment) * 100.0) / 100.0;
+         Double formattedInstallmentValue = Math.round((dto.getValue() / installment) * 100.0) / 100.0;
 
          if (remainingAmount > 0) {
             formattedInstallmentValue += 0.01;
             remainingAmount -= 0.01;
          }
 
-         String titleDescription = installment > 1 ? titleDto.getDescription() + " (" + i + ")"
+         String titleDescription = installment > 1
+               ? titleDto.getDescription() + " (" + i + ")"
                : titleDto.getDescription();
 
          title.setDescription(titleDescription);
@@ -152,11 +182,10 @@ public class TitleService implements ICRUDService<TitleRequestDto, TitleResponse
          title.setInvoice(invoice);
          title.setCostCenter(titleDto.getCostCenter());
          title.setType(titleDto.getType());
-         title.setReferenceDate(referenceDate);
+         title.setReferenceDate(titleDto.getReferenceDate());
          title.setNotes(titleDto.getNotes());
 
          title = titleRepository.save(title);
-
          titles.add(title);
       }
 
@@ -172,7 +201,7 @@ public class TitleService implements ICRUDService<TitleRequestDto, TitleResponse
 
       TitleResponseDto titleDatabase = getById(id);
 
-      titleValidation(dto);
+      titleValidation(dto, null, null);
 
       Title title = mapper.map(dto, Title.class);
 
@@ -211,7 +240,17 @@ public class TitleService implements ICRUDService<TitleRequestDto, TitleResponse
             .collect(Collectors.toList());
    }
 
-   private void titleValidation(TitleRequestDto dto) {
+   private void titleValidation(TitleRequestDto dto, CreditCard creditCard, User user) {
+
+      if (creditCard != null) {
+         if (dto.getType() == Type.EXPENSE && !creditCard.getUser().getId().equals(user.getId())) {
+            throw new ResourceBadRequestException("Você não pode alterar dados de outros usuários.");
+         }
+      }
+
+      if (dto.getInstallment() > 99) {
+         throw new ResourceBadRequestException("O número máximo de prestações é 99.");
+      }
 
       if (dto.getValue() == null || dto.getValue() == 0 ||
 
@@ -221,7 +260,16 @@ public class TitleService implements ICRUDService<TitleRequestDto, TitleResponse
                "Os campos título, data de vencimento, valor e descrição são obrigatórios.");
       } else if (dto.getValue() < 0) {
 
-         dto.setValue(-(dto.getValue())); // setting to a positive value
+         dto.setValue(-(dto.getValue()));
       }
+   }
+
+   private Double getRemainingAmountFromInstallments(TitleRequestDto dto) {
+      int installment = dto.getInstallment();
+      Double formattedInstallmentValue = Math.round((dto.getValue() / installment) * 100.0) / 100.0;
+      Double totalInstallmentsValue = formattedInstallmentValue * installment;
+      Double remainingAmount = dto.getValue() - totalInstallmentsValue;
+
+      return remainingAmount;
    }
 }

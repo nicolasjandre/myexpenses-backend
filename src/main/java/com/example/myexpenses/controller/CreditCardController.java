@@ -24,9 +24,10 @@ public class CreditCardController implements ICRUDController<CreditCardRequestDt
    CreditCardService creditCardService;
 
    @Override
+   @Operation(summary = "Get all credit cards that belongs to the user who is requesting.")
    public ResponseEntity<List<CreditCardResponseDto>> getAll() {
-      // TODO Auto-generated method stub
-      throw new UnsupportedOperationException("Unimplemented method 'getAll'");
+
+      return ResponseEntity.ok(creditCardService.getAll());
    }
 
    @Override

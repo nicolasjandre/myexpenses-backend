@@ -30,6 +30,16 @@ public class CreditCardService {
    @Autowired
    private ModelMapper mapper;
 
+   public List<CreditCardResponseDto> getAll() {
+      User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+      List<CreditCard> creditCards = creditCardRepository.findByUser(user);
+
+      return creditCards.stream()
+            .map(creditCard -> mapper.map(creditCard, CreditCardResponseDto.class))
+            .collect(Collectors.toList());
+   }
+
    public List<CreditCardResponseDto> create(CreditCardRequestDto dto) {
       
       User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();

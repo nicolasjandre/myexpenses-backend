@@ -1,5 +1,6 @@
 package com.example.myexpenses.domain.model;
 
+import java.util.Date;
 import java.util.List;
 
 import com.example.myexpenses.domain.Enum.Bank;
@@ -43,7 +44,9 @@ public class CreditCard {
    private int closingDay;
 
    @Column(nullable = false)
-   private int due_date;
+   private int dueDay;
+   
+   private Date inativeAt;
 
    @OneToMany(mappedBy = "creditCard")
    @JsonManagedReference(value = "oneCreditCardToManyInvoices")
@@ -86,14 +89,6 @@ public class CreditCard {
       this.bank = bank;
    }
 
-   public int getDue_date() {
-      return due_date;
-   }
-
-   public void setDue_date(int due_date) {
-      this.due_date = due_date;
-   }
-
    public User getUser() {
       return user;
    }
@@ -132,5 +127,21 @@ public class CreditCard {
 
    public void setClosingDay(int closingDay) {
       this.closingDay = closingDay;
+   }
+
+   public Date getInativeAt() {
+      return inativeAt;
+   }
+
+   public void setInativeAt(Date inativeAt) {
+      this.inativeAt = inativeAt;
+   }
+
+   public int getDueDay() {
+      return dueDay;
+   }
+
+   public void setDueDay(int dueDay) {
+      this.dueDay = dueDay;
    }
 }

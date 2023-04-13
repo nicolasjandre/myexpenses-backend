@@ -1,8 +1,9 @@
 package com.example.myexpenses.dto.creditCard;
 
+import java.util.Date;
+
 import com.example.myexpenses.domain.Enum.Bank;
 import com.example.myexpenses.domain.Enum.CardFlag;
-import com.example.myexpenses.dto.user.UserResponseDto;
 
 public class CreditCardResponseDto {
    private Long id;
@@ -19,9 +20,9 @@ public class CreditCardResponseDto {
 
    private int closingDay;
 
-   private int due_date;
+   private int dueDay;
 
-   private UserResponseDto user;
+   private Date inativeAt;
 
    public Long getId() {
       return id;
@@ -55,22 +56,6 @@ public class CreditCardResponseDto {
       this.bank = bank;
    }
 
-   public int getDue_date() {
-      return due_date;
-   }
-
-   public void setDue_date(int due_date) {
-      this.due_date = due_date;
-   }
-
-   public UserResponseDto getUser() {
-      return user;
-   }
-
-   public void setUser(UserResponseDto user) {
-      this.user = user;
-   }
-
    public Double getAvailableLimit() {
       return availableLimit;
    }
@@ -93,6 +78,22 @@ public class CreditCardResponseDto {
 
    public void setClosingDay(int closingDay) {
       this.closingDay = closingDay;
+   }
+
+   public Date getInativeAt() {
+      return inativeAt;
+   }
+
+   public void setInativeAt(Date inativeAt) {
+      this.inativeAt = inativeAt;
+   }
+
+   public int getDueDay() {
+      return dueDay;
+   }
+
+   public void setDueDay(int dueDay) {
+      this.dueDay = dueDay;
    }
 
    
