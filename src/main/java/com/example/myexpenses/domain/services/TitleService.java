@@ -69,8 +69,6 @@ public class TitleService implements ICRUDService<TitleRequestDto, TitleResponse
 
       Optional<Title> optTitle = titleRepository.findById(id);
 
-      System.out.println(new Date());
-
       if (optTitle.isEmpty()) {
          throw new ResourceNotFoundException("Não foi possível encontrar o título com o id: " + id);
       }
@@ -233,7 +231,7 @@ public class TitleService implements ICRUDService<TitleRequestDto, TitleResponse
 
       Long userId = user.getId();
 
-      List<Title> titles = titleRepository.findByCreatedAtBetweenAndUserId(initialDate, finalDate, userId);
+      List<Title> titles = titleRepository.findByReferenceDateBetweenAndUserId(initialDate, finalDate, userId);
 
       return titles.stream()
             .map(title -> mapper.map(title, TitleResponseDto.class))

@@ -14,7 +14,7 @@ public interface TitleRepository extends JpaRepository<Title, Long> {
 
       List<Title> findByUser(User user);
 
-      List<Title> findByCreatedAtBetweenAndUserId(@Param("initialDate") Date initialDate,
+      List<Title> findByReferenceDateBetweenAndUserId(@Param("initialDate") Date initialDate,
                   @Param("finalDate") Date finalDate,
                   @Param("userId") Long userId);
 

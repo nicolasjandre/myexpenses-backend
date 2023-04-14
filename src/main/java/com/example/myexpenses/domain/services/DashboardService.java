@@ -33,7 +33,6 @@ public class DashboardService {
          sqlDate1 = new Date(utilDate1.getTime());
          sqlDate2 = new Date(utilDate2.getTime());
 
-         System.out.println(sqlDate1);
       } catch (ParseException e) {
          System.out.println("Failed to parse date: " + e.getMessage());
       }
@@ -57,8 +56,8 @@ public class DashboardService {
          }
       }
 
-      Collections.sort(expenseTitles, Comparator.comparing(TitleResponseDto::getCreatedAt));
-      Collections.sort(incomeTitles, Comparator.comparing(TitleResponseDto::getCreatedAt));
+      Collections.sort(expenseTitles, Comparator.comparing(TitleResponseDto::getReferenceDate));
+      Collections.sort(incomeTitles, Comparator.comparing(TitleResponseDto::getReferenceDate));
 
       balance = totalIncomes - totalExpenses;
 
