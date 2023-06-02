@@ -1,6 +1,7 @@
 package com.example.myexpenses.domain.model;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -46,11 +47,11 @@ public class User implements UserDetails {
 
     @OneToMany(mappedBy = "user")
     @JsonManagedReference(value = "oneUserToManyCostCenters")
-    private Set<CostCenter> costCenters;
+    private transient Set<CostCenter> costCenters;
 
     @OneToMany(mappedBy = "user")
     @JsonManagedReference(value = "oneUserToManyCreditCards")
-    private Set<CreditCard> creditCards;
+    private transient Set<CreditCard> creditCards;
 
     @Column(nullable = false)
     private Date created_at;
@@ -63,7 +64,7 @@ public class User implements UserDetails {
 
     @OneToMany(mappedBy = "user")
     @JsonManagedReference(value = "oneUserToManyTitles")
-    private List<Title> titles;
+    private transient List<Title> titles;
 
     public Long getId() {
         return id;
@@ -148,7 +149,7 @@ public class User implements UserDetails {
     // #region Framework
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return null;
+        return Collections.emptyList();
     }
 
     @Override

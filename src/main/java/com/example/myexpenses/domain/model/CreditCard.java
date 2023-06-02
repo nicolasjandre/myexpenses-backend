@@ -3,8 +3,8 @@ package com.example.myexpenses.domain.model;
 import java.util.Date;
 import java.util.List;
 
-import com.example.myexpenses.domain.Enum.Bank;
-import com.example.myexpenses.domain.Enum.CardFlag;
+import com.example.myexpenses.domain.enums.Bank;
+import com.example.myexpenses.domain.enums.CardFlag;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 

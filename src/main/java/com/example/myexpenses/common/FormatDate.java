@@ -5,6 +5,8 @@ import java.util.Date;
 
 public class FormatDate {
 
+    private FormatDate() {}
+
     public static String formatDate(Date date) {
 
         SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");

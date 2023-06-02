@@ -1,4 +1,4 @@
-package com.example.myexpenses.domain.Enum;
+package com.example.myexpenses.domain.enums;
 
 public enum CardFlag {
 

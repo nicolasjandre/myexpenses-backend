@@ -11,7 +11,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.example.myexpenses.domain.Enum.Type;
+import com.example.myexpenses.domain.enums.Type;
 import com.example.myexpenses.dto.dashboard.DashboardResponseDto;
 import com.example.myexpenses.dto.title.TitleResponseDto;
 

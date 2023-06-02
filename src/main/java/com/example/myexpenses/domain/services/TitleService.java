@@ -15,7 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import com.example.myexpenses.domain.Enum.Type;
+import com.example.myexpenses.domain.enums.Type;
 import com.example.myexpenses.domain.exception.ResourceBadRequestException;
 import com.example.myexpenses.domain.exception.ResourceNotFoundException;
 import com.example.myexpenses.domain.model.CreditCard;

@@ -9,12 +9,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import com.example.myexpenses.domain.enums.Bank;
+import com.example.myexpenses.domain.enums.CardFlag;
 import com.example.myexpenses.domain.exception.ResourceBadRequestException;
 import com.example.myexpenses.domain.model.CreditCard;
 import com.example.myexpenses.domain.model.Title;
 import com.example.myexpenses.domain.model.User;
 import com.example.myexpenses.domain.repository.CreditCardRepository;
 import com.example.myexpenses.domain.repository.TitleRepository;
+import com.example.myexpenses.dto.BankDto;
+import com.example.myexpenses.dto.CardFlagDto;
 import com.example.myexpenses.dto.creditCard.CreditCardRequestDto;
 import com.example.myexpenses.dto.creditCard.CreditCardResponseDto;
 
@@ -30,6 +34,28 @@ public class CreditCardService {
    @Autowired
    private ModelMapper mapper;
 
+   public List<BankDto> getAllBanks() {
+      List<BankDto> banks = new ArrayList<>();
+
+      for (Bank bank : Bank.values()) {
+         BankDto bankDto = new BankDto(bank.name(), bank.getValue());
+         banks.add(bankDto);
+      }
+
+      return banks;
+   }
+
+   public List<CardFlagDto> getAllFlags() {
+      List<CardFlagDto> cardFlags = new ArrayList<>();
+
+      for (CardFlag cardFlag : CardFlag.values()) {
+         CardFlagDto flagDto = new CardFlagDto(cardFlag.name(), cardFlag.getValue());
+         cardFlags.add(flagDto);
+      }
+
+      return cardFlags;
+   }
+
    public List<CreditCardResponseDto> getAll() {
       User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
@@ -41,12 +67,12 @@ public class CreditCardService {
    }
 
    public List<CreditCardResponseDto> create(CreditCardRequestDto dto) {
-      
+
       User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
       CreditCard creditCard = mapper.map(dto, CreditCard.class);
 
       creditCard.setUser(user);
-      creditCard.setAvailableLimit(2600d);
+      creditCard.setAvailableLimit(dto.getCreditLimit());
       creditCardRepository.save(creditCard);
 
       List<CreditCard> createdCard = new ArrayList<>();
@@ -55,7 +81,6 @@ public class CreditCardService {
       return createdCard.stream()
             .map(createdCreditCard -> mapper.map(createdCreditCard, CreditCardResponseDto.class))
             .collect(Collectors.toList());
-
    }
 
    public void updateCreditCardLimitWhenCreatingTitles(CreditCard creditCard) {

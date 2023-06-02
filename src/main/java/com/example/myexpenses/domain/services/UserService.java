@@ -38,6 +38,8 @@ public class UserService implements ICRUDService<UserRequestDto, UserResponseDto
     @Autowired
     private JwtUtil jwtUtil;
 
+    private String userNotFound = "Não foi possível encontrar o usuário com o id: ";
+
     @Override
     public List<UserResponseDto> getAll() {
 
@@ -54,9 +56,7 @@ public class UserService implements ICRUDService<UserRequestDto, UserResponseDto
         Optional<User> optUser = userRepository.findById(id);
         User userWhoIsRequesting = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        if (optUser.isEmpty()) {
-            throw new ResourceNotFoundException("Não foi possível encontrar o usuário com o id: " + id);
-        } else if (!optUser.get().getId().equals(userWhoIsRequesting.getId())) {
+        if (optUser.isEmpty() || !optUser.get().getId().equals(userWhoIsRequesting.getId())) {
             throw new ResourceNotFoundException("Não foi possível encontrar o usuário com o id: " + id);
         }
 
@@ -129,8 +129,8 @@ public class UserService implements ICRUDService<UserRequestDto, UserResponseDto
 
         UserResponseDto userDatabase = getById(id);
 
-        if (userDatabase.getId() != userWhoIsRequesting.getId()) {
-            throw new ResourceNotFoundException("Não foi possível encontrar o usuário com o id: " + id);
+        if (!userDatabase.getId().equals(userWhoIsRequesting.getId())) {
+            throw new ResourceNotFoundException(userNotFound + id);
         }
 
         User user = mapper.map(dto, User.class);
@@ -141,7 +141,7 @@ public class UserService implements ICRUDService<UserRequestDto, UserResponseDto
                 throw new ResourceBadRequestException("A nova senha precisa ter no mínimo 8 caracteres.");
             } else if (!dto.getNewPassword().equals(dto.getPasswordConfirmation())) {
                 throw new BadCredentialsException("A nova senha e a sua confirmação não conferem.");
-            } else if (dto.getNewPassword() == dto.getPassword()) {
+            } else if (dto.getNewPassword().equals(dto.getPassword())) {
                 throw new ResourceBadRequestException("A nova senha não pode ser igual a antiga.");
             } else {
                 String encodedPassword = passwordEncoder.encode(dto.getNewPassword());
@@ -175,7 +175,7 @@ public class UserService implements ICRUDService<UserRequestDto, UserResponseDto
         Optional<User> optUser = userRepository.findById(id);
 
         if (optUser.isEmpty()) {
-            throw new ResourceNotFoundException("Não foi possível encontrar o usuário com o id: " + id);
+            throw new ResourceNotFoundException(userNotFound + id);
         }
 
         User user = optUser.get();

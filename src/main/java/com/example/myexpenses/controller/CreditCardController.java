@@ -6,10 +6,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.myexpenses.domain.services.CreditCardService;
+import com.example.myexpenses.dto.BankDto;
+import com.example.myexpenses.dto.CardFlagDto;
 import com.example.myexpenses.dto.creditCard.CreditCardRequestDto;
 import com.example.myexpenses.dto.creditCard.CreditCardResponseDto;
 
@@ -22,6 +25,18 @@ public class CreditCardController implements ICRUDController<CreditCardRequestDt
 
    @Autowired
    CreditCardService creditCardService;
+
+   @Operation(summary = "Get all default banks.")
+   @GetMapping("/banks")
+   public ResponseEntity<List<BankDto>> getBanks() {
+      return ResponseEntity.status(HttpStatus.OK).body(creditCardService.getAllBanks());
+   }
+
+   @Operation(summary = "Get all default flags.")
+   @GetMapping("/flags")
+   public ResponseEntity<List<CardFlagDto>> getFlags() {
+      return ResponseEntity.status(HttpStatus.OK).body(creditCardService.getAllFlags());
+   }
 
    @Override
    @Operation(summary = "Get all credit cards that belongs to the user who is requesting.")

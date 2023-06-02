@@ -2,8 +2,8 @@ package com.example.myexpenses.dto.creditCard;
 
 import java.util.Date;
 
-import com.example.myexpenses.domain.Enum.Bank;
-import com.example.myexpenses.domain.Enum.CardFlag;
+import com.example.myexpenses.domain.enums.Bank;
+import com.example.myexpenses.domain.enums.CardFlag;
 
 public class CreditCardResponseDto {
    private Long id;

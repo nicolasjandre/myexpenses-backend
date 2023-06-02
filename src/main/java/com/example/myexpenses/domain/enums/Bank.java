@@ -1,4 +1,7 @@
-package com.example.myexpenses.domain.Enum;
+package com.example.myexpenses.domain.enums;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public enum Bank {
 
@@ -20,7 +23,6 @@ public enum Bank {
     DIGIO("Digio"),
     BANCO_ORIGINAL("Banco Original");
     
-
     private String value;
 
     private Bank(String value) {
@@ -29,6 +31,14 @@ public enum Bank {
 
     public String getValue() {
         return this.value;
+    }
+
+    public static Map<String, String> getAllBanks() {
+        Map<String, String> banks = new HashMap<>();
+        for (Bank bank : Bank.values()) {
+            banks.put(bank.name(), bank.getValue());
+        }
+        return banks;
     }
 
     @Override

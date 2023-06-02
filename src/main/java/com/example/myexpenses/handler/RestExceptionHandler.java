@@ -2,6 +2,7 @@ package com.example.myexpenses.handler;
 
 import java.util.Date;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -56,6 +57,26 @@ public class RestExceptionHandler {
                 exception.getMessage());
 
         return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ErrorResponse> dataIntegrityViolationException(DataIntegrityViolationException exception) {
+
+        String dateAndHour = FormatDate.formatDate(new Date());
+
+        String message = exception.getMessage();
+
+        if (message.contains("uk_6dotkott2kjsp8vw4d0m25fb7")) {
+            message = "Já existe um usuário cadastrado com este email";
+        }
+
+        ErrorResponse error = new ErrorResponse(
+                dateAndHour,
+                HttpStatus.BAD_REQUEST.value(),
+                "Bad Request",
+                message);
+
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(TokenRefreshException.class)

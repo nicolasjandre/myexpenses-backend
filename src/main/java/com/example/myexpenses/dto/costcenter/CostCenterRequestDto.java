@@ -2,7 +2,7 @@ package com.example.myexpenses.dto.costcenter;
 
 import java.util.Date;
 
-import com.example.myexpenses.domain.Enum.Type;
+import com.example.myexpenses.domain.enums.Type;
 
 public class CostCenterRequestDto {
 

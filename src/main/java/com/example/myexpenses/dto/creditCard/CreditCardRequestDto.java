@@ -1,7 +1,7 @@
 package com.example.myexpenses.dto.creditCard;
 
-import com.example.myexpenses.domain.Enum.Bank;
-import com.example.myexpenses.domain.Enum.CardFlag;
+import com.example.myexpenses.domain.enums.Bank;
+import com.example.myexpenses.domain.enums.CardFlag;
 import com.example.myexpenses.domain.model.User;
 
 public class CreditCardRequestDto {
