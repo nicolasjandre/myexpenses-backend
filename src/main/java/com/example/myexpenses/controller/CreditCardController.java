@@ -62,14 +62,13 @@ public class CreditCardController implements ICRUDController<CreditCardRequestDt
 
    @Override
    public ResponseEntity<CreditCardResponseDto> update(Long id, CreditCardRequestDto dto) {
-      // TODO Auto-generated method stub
-      throw new UnsupportedOperationException("Unimplemented method 'update'");
+      return ResponseEntity.status(HttpStatus.OK).body(creditCardService.update(id, dto));
    }
 
    @Override
-   public ResponseEntity<?> delete(Long id) {
-      // TODO Auto-generated method stub
-      throw new UnsupportedOperationException("Unimplemented method 'delete'");
+   public ResponseEntity<Void> delete(Long id) {
+      creditCardService.delete(id);
+      return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
    }
 
 }

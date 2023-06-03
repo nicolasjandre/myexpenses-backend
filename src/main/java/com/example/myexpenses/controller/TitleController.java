@@ -99,7 +99,7 @@ public class TitleController implements ICRUDController<TitleRequestDto, TitleRe
 
    @Override
    @Operation(summary = "Delete a specific title. (Doesn't remove it from the database, just marks it with an inactive date)")
-   public ResponseEntity<?> delete(Long id) {
+   public ResponseEntity<Void> delete(Long id) {
 
       titleService.delete(id);
 

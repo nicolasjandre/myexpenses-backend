@@ -61,7 +61,7 @@ public class CostCenterController implements ICRUDController<CostCenterRequestDt
 
    @Override
    @Operation(summary = "Delete a cost center (does'nt remove from the database, just puts an innative date)")
-   public ResponseEntity<?> delete(Long id) {
+   public ResponseEntity<Void> delete(Long id) {
 
       costCenterService.delete(id);
 

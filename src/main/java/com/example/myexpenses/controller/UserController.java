@@ -97,7 +97,7 @@ public class UserController implements ICRUDController<UserRequestDto, UserRespo
 
     @Override
     @Operation(summary = "Delete an user (does'nt remove from database, just puts an innative date)")
-    public ResponseEntity<?> delete(Long id) {
+    public ResponseEntity<Void> delete(Long id) {
 
         userService.delete(id);
 

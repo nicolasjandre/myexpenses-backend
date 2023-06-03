@@ -25,5 +25,5 @@ public interface ICRUDController<Req, Res> {
     ResponseEntity<Res> update(@PathVariable Long id, @RequestBody Req dto);
 
     @DeleteMapping("/{id}")
-    ResponseEntity<?> delete(@PathVariable Long id);
+    ResponseEntity<Void> delete(@PathVariable Long id);
 }
