@@ -1,5 +1,6 @@
 package com.example.myexpenses.domain.model;
 
+import java.io.Serializable;
 import java.util.Date;
 
 import jakarta.persistence.Column;
@@ -11,7 +12,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 
 @Entity(name = "refreshtoken")
-public class RefreshJwt {
+public class RefreshJwt implements Serializable {
    
    @Id
    @GeneratedValue(strategy = GenerationType.AUTO)

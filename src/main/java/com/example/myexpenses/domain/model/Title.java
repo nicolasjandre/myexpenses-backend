@@ -1,5 +1,6 @@
 package com.example.myexpenses.domain.model;
 
+import java.io.Serializable;
 import java.util.Date;
 
 import com.example.myexpenses.domain.enums.Type;
@@ -7,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -15,7 +17,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 
 @Entity
-public class Title {
+public class Title implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,22 +27,23 @@ public class Title {
     @Column(nullable = false)
     private String description;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JsonBackReference(value = "oneUserToManyTitles")
     @JoinColumn(name = "user_id")
     private User user;
 
     private Type type;
-    
-    @ManyToOne
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JsonBackReference(value = "oneInvoiceToManyTitles")
     @JoinColumn(name = "invoice_id")
     private CreditCardInvoice invoice;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JsonBackReference(value = "oneCostCenterToManyTitles")
     @JoinColumn(name="costcenter_id", nullable=false)
     private CostCenter costCenter;
+
 
     @Column(nullable = false)
     private Double value;

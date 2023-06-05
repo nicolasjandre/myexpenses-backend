@@ -51,7 +51,7 @@ public class CostCenterService implements ICRUDService<CostCenterRequestDto, Cos
 
       User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-      if (costCenterOpt.get().getUser().getId() != user.getId()) {
+      if (!costCenterOpt.get().getUser().getId().equals(user.getId())) {
          throw new ResourceNotFoundException("Não foi possível encontrar o centro de custo com o id: " + id);
       }
 

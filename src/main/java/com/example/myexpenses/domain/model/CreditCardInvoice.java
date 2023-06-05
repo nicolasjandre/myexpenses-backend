@@ -1,11 +1,13 @@
 package com.example.myexpenses.domain.model;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -17,19 +19,19 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 
 @Entity
-public class CreditCardInvoice {
+public class CreditCardInvoice implements Serializable {
 
    @Id
    @GeneratedValue(strategy = GenerationType.IDENTITY)
    @Column(name = "invoice_id")
    private Long id;
 
-   @ManyToOne
+   @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
    @JsonBackReference(value = "oneCreditCardToManyInvoices")
    @JoinColumn(name = "creditcard_id")
    private CreditCard creditCard;
 
-   @OneToMany(mappedBy = "invoice", fetch = FetchType.LAZY)
+   @OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL)
    @JsonManagedReference(value = "oneInvoiceToManyTitles")
    private List<Title> titles;
 
