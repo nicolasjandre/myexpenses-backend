@@ -6,6 +6,7 @@ import java.util.Date;
 import com.example.myexpenses.domain.enums.Type;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -34,7 +35,7 @@ public class Title implements Serializable {
 
     private Type type;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JsonBackReference(value = "oneInvoiceToManyTitles")
     @JoinColumn(name = "invoice_id")
     private CreditCardInvoice invoice;
@@ -44,6 +45,10 @@ public class Title implements Serializable {
     @JoinColumn(name="costcenter_id", nullable=false)
     private CostCenter costCenter;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JsonBackReference(value = "oneCreditCardToManyTitles")
+    @JoinColumn(name = "credit_card_id")
+    private CreditCard creditCard;
 
     @Column(nullable = false)
     private Double value;
@@ -56,6 +61,14 @@ public class Title implements Serializable {
 
     @Column(columnDefinition = "TEXT")
     private String notes;
+
+    public CreditCard getCreditCard() {
+        return creditCard;
+    }
+
+    public void setCreditCard(CreditCard creditCard) {
+        this.creditCard = creditCard;
+    }
 
     public Long getId() {
         return id;

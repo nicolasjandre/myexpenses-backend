@@ -22,7 +22,7 @@ import jakarta.persistence.OneToMany;
 
 @Entity
 public class CreditCard implements Serializable {
-   
+
    @Id
    @GeneratedValue(strategy = GenerationType.IDENTITY)
    @Column(name = "creditcard_id")
@@ -48,17 +48,21 @@ public class CreditCard implements Serializable {
 
    @Column(nullable = false)
    private int dueDay;
-   
+
    private Date inativeAt;
 
    @OneToMany(mappedBy = "creditCard", cascade = CascadeType.ALL)
    @JsonManagedReference(value = "oneCreditCardToManyInvoices")
    private List<CreditCardInvoice> invoices;
-   
+
    @ManyToOne(fetch = FetchType.LAZY)
    @JsonBackReference(value = "oneUserToManyCreditCards")
    @JoinColumn(name = "user_id")
    private User user;
+
+   @OneToMany(mappedBy = "creditCard", cascade = CascadeType.ALL)
+   @JsonManagedReference(value = "oneCreditCardToManyTitles")
+   private List<Title> title;
 
    public Long getId() {
       return id;

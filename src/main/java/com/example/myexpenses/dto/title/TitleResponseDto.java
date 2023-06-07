@@ -3,18 +3,25 @@ package com.example.myexpenses.dto.title;
 import java.util.Date;
 
 import com.example.myexpenses.domain.enums.Type;
-import com.example.myexpenses.domain.model.CreditCardInvoice;
-import com.example.myexpenses.dto.costcenter.CostCenterRequestDto;
+import com.example.myexpenses.dto.costcenter.CostCenterResponseDto;
+import com.example.myexpenses.dto.creditCard.CreditCardResponseDto;
+import com.example.myexpenses.dto.creditCardInvoice.CreditCardInvoiceResponseDto;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 public class TitleResponseDto {
-   
+
    private String description;
 
    private Type type;
 
-   private CostCenterRequestDto costCenter;
+   @JsonIgnoreProperties({ "standard", "type", "inative_at" })
+   private CostCenterResponseDto costCenter;
 
-   private CreditCardInvoice invoice;
+   @JsonIgnoreProperties({ "creditLimit", "availableLimit", "flag", "bank", "closingDay", "dueDay", "inativeAt" })
+   private CreditCardResponseDto creditCard;
+
+   @JsonIgnoreProperties({ "creditCard", "titles", "closingDate" })
+   private CreditCardInvoiceResponseDto invoice;
 
    private Double value;
 
@@ -25,6 +32,22 @@ public class TitleResponseDto {
    private Date inativeAt;
 
    private String notes;
+
+   public CreditCardInvoiceResponseDto getInvoice() {
+      return invoice;
+   }
+
+   public void setInvoice(CreditCardInvoiceResponseDto invoice) {
+      this.invoice = invoice;
+   }
+
+   public CreditCardResponseDto getCreditCard() {
+      return creditCard;
+   }
+
+   public void setCreditCard(CreditCardResponseDto creditCard) {
+      this.creditCard = creditCard;
+   }
 
    public String getDescription() {
       return description;
@@ -42,20 +65,12 @@ public class TitleResponseDto {
       this.type = type;
    }
 
-   public CostCenterRequestDto getCostCenter() {
+   public CostCenterResponseDto getCostCenter() {
       return costCenter;
    }
 
-   public void setCostCenter(CostCenterRequestDto costCenter) {
+   public void setCostCenter(CostCenterResponseDto costCenter) {
       this.costCenter = costCenter;
-   }
-
-   public CreditCardInvoice getInvoice() {
-      return invoice;
-   }
-
-   public void setInvoice(CreditCardInvoice invoice) {
-      this.invoice = invoice;
    }
 
    public Double getValue() {

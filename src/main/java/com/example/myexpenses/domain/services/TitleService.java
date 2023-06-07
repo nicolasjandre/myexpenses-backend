@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -75,7 +76,7 @@ public class TitleService implements ICRUDService<TitleRequestDto, TitleResponse
 
       User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-      if (optTitle.get().getUser().getId() != user.getId()) {
+      if (!optTitle.get().getUser().getId().equals(user.getId())) {
          throw new ResourceNotFoundException("Não foi possível encontrar o título com o id: " + id);
       }
 
@@ -85,7 +86,7 @@ public class TitleService implements ICRUDService<TitleRequestDto, TitleResponse
    @Override
    public List<TitleResponseDto> create(TitleRequestDto dto) {
 
-      if (dto.getCreditCardId() == 0) {
+      if (Objects.isNull(dto.getCreditCardId())) {
          return createWalletIncomeOrExpense(dto);
       } else {
          return createCreditCardExpense(dto);
@@ -94,7 +95,7 @@ public class TitleService implements ICRUDService<TitleRequestDto, TitleResponse
    }
 
    public List<TitleResponseDto> createWalletIncomeOrExpense(TitleRequestDto dto) {
-      
+
       List<Title> titles = new ArrayList<>();
       User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
@@ -116,7 +117,7 @@ public class TitleService implements ICRUDService<TitleRequestDto, TitleResponse
       }
 
       user.setUserBalance(newUserBalance);
-      user = userRepository.save(user);
+      userRepository.save(user);
 
       return titles.stream()
             .map(mappedTitle -> mapper.map(mappedTitle, TitleResponseDto.class))
@@ -181,6 +182,7 @@ public class TitleService implements ICRUDService<TitleRequestDto, TitleResponse
          title.setCostCenter(titleDto.getCostCenter());
          title.setType(titleDto.getType());
          title.setReferenceDate(titleDto.getReferenceDate());
+         title.setCreditCard(creditCard);
          title.setNotes(titleDto.getNotes());
 
          title = titleRepository.save(title);
@@ -238,12 +240,35 @@ public class TitleService implements ICRUDService<TitleRequestDto, TitleResponse
             .collect(Collectors.toList());
    }
 
+   public List<TitleResponseDto> getTitlesByInvoiceDueDate(Date initialDate, Date finalDate) {
+
+      User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+      Long userId = user.getId();
+
+      List<Title> titles = titleRepository.findByInvoiceDueDateBetweenAndUserId(initialDate, finalDate, userId);
+
+      return titles.stream()
+            .map(title -> mapper.map(title, TitleResponseDto.class))
+            .collect(Collectors.toList());
+   }
+
+   public List<TitleResponseDto> getLastDaysTitles(Long days) {
+      User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+      Long userId = user.getId();
+
+      List<Title> titles = titleRepository.findByLastXDays(days, userId);
+
+      return titles.stream()
+            .map(title -> mapper.map(title, TitleResponseDto.class))
+            .collect(Collectors.toList());
+   }
+
    private void titleValidation(TitleRequestDto dto, CreditCard creditCard, User user) {
 
-      if (creditCard != null) {
-         if (dto.getType() == Type.EXPENSE && !creditCard.getUser().getId().equals(user.getId())) {
-            throw new ResourceBadRequestException("Você não pode alterar dados de outros usuários.");
-         }
+      if (creditCard != null && (dto.getType() == Type.EXPENSE && !creditCard.getUser().getId().equals(user.getId()))) {
+         throw new ResourceBadRequestException("Você não pode alterar dados de outros usuários.");
       }
 
       if (dto.getInstallment() > 99) {
