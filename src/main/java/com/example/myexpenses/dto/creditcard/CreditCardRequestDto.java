@@ -1,11 +1,11 @@
-package com.example.myexpenses.dto.creditCard;
-
-import java.util.Date;
+package com.example.myexpenses.dto.creditcard;
 
 import com.example.myexpenses.domain.enums.Bank;
 import com.example.myexpenses.domain.enums.CardFlag;
+import com.example.myexpenses.domain.model.User;
 
-public class CreditCardResponseDto {
+public class CreditCardRequestDto {
+
    private Long id;
 
    private String name;
@@ -22,7 +22,7 @@ public class CreditCardResponseDto {
 
    private int dueDay;
 
-   private Date inativeAt;
+   private User user;
 
    public Long getId() {
       return id;
@@ -56,6 +56,14 @@ public class CreditCardResponseDto {
       this.bank = bank;
    }
 
+   public User getUser() {
+      return user;
+   }
+
+   public void setUser(User user) {
+      this.user = user;
+   }
+
    public Double getAvailableLimit() {
       return availableLimit;
    }
@@ -80,14 +88,6 @@ public class CreditCardResponseDto {
       this.closingDay = closingDay;
    }
 
-   public Date getInativeAt() {
-      return inativeAt;
-   }
-
-   public void setInativeAt(Date inativeAt) {
-      this.inativeAt = inativeAt;
-   }
-
    public int getDueDay() {
       return dueDay;
    }
@@ -95,6 +95,4 @@ public class CreditCardResponseDto {
    public void setDueDay(int dueDay) {
       this.dueDay = dueDay;
    }
-
-   
 }

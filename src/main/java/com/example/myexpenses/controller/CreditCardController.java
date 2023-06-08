@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.myexpenses.domain.services.CreditCardService;
 import com.example.myexpenses.dto.BankDto;
 import com.example.myexpenses.dto.CardFlagDto;
-import com.example.myexpenses.dto.creditCard.CreditCardRequestDto;
-import com.example.myexpenses.dto.creditCard.CreditCardResponseDto;
+import com.example.myexpenses.dto.creditcard.CreditCardRequestDto;
+import com.example.myexpenses.dto.creditcard.CreditCardResponseDto;
 
 import io.swagger.v3.oas.annotations.Operation;
 

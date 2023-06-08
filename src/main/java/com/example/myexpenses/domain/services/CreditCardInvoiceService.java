@@ -15,7 +15,7 @@ import com.example.myexpenses.domain.model.CreditCard;
 import com.example.myexpenses.domain.model.CreditCardInvoice;
 import com.example.myexpenses.domain.repository.CreditCardInvoiceRepository;
 import com.example.myexpenses.domain.repository.CreditCardRepository;
-import com.example.myexpenses.dto.creditCardInvoice.CreditCardInvoiceResponseDto;
+import com.example.myexpenses.dto.creditcardinvoice.CreditCardInvoiceResponseDto;
 
 @Service
 public class CreditCardInvoiceService {

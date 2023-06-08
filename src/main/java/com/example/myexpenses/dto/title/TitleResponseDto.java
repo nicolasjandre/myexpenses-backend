@@ -4,112 +4,142 @@ import java.util.Date;
 
 import com.example.myexpenses.domain.enums.Type;
 import com.example.myexpenses.dto.costcenter.CostCenterResponseDto;
-import com.example.myexpenses.dto.creditCard.CreditCardResponseDto;
-import com.example.myexpenses.dto.creditCardInvoice.CreditCardInvoiceResponseDto;
+import com.example.myexpenses.dto.creditcard.CreditCardResponseDto;
+import com.example.myexpenses.dto.creditcardinvoice.CreditCardInvoiceResponseDto;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 public class TitleResponseDto {
 
-   private String description;
+    private Long id;
 
-   private Type type;
+    private String description;
 
-   @JsonIgnoreProperties({ "standard", "type", "inative_at" })
-   private CostCenterResponseDto costCenter;
+    private Type type;
 
-   @JsonIgnoreProperties({ "creditLimit", "availableLimit", "flag", "bank", "closingDay", "dueDay", "inativeAt" })
-   private CreditCardResponseDto creditCard;
+    @JsonIgnoreProperties({ "standard", "type", "inative_at" })
+    private CostCenterResponseDto costCenter;
 
-   @JsonIgnoreProperties({ "creditCard", "titles", "closingDate" })
-   private CreditCardInvoiceResponseDto invoice;
+    @JsonIgnoreProperties({ "creditLimit", "availableLimit", "flag", "bank", "closingDay", "dueDay", "inativeAt" })
+    private CreditCardResponseDto creditCard;
 
-   private Double value;
+    @JsonIgnoreProperties({ "creditCard", "titles", "closingDate" })
+    private CreditCardInvoiceResponseDto invoice;
 
-   private Date referenceDate;
+    private Double value;
 
-   private Date createdAt;
+    private Date referenceDate;
 
-   private Date inativeAt;
+    private Date createdAt;
 
-   private String notes;
+    private Date inativeAt;
 
-   public CreditCardInvoiceResponseDto getInvoice() {
-      return invoice;
-   }
+    private String notes;
 
-   public void setInvoice(CreditCardInvoiceResponseDto invoice) {
-      this.invoice = invoice;
-   }
+    public TitleResponseDto() {
+    }
 
-   public CreditCardResponseDto getCreditCard() {
-      return creditCard;
-   }
+    public TitleResponseDto(Long id, String description, Type type, CostCenterResponseDto costCenter,
+            CreditCardResponseDto creditCard, CreditCardInvoiceResponseDto invoice, Double value, Date referenceDate,
+            Date createdAt, Date inativeAt, String notes) {
 
-   public void setCreditCard(CreditCardResponseDto creditCard) {
-      this.creditCard = creditCard;
-   }
+        this.id = id;
+        this.description = description;
+        this.type = type;
+        this.costCenter = costCenter;
+        this.creditCard = creditCard;
+        this.invoice = invoice;
+        this.value = value;
+        this.referenceDate = referenceDate;
+        this.createdAt = createdAt;
+        this.inativeAt = inativeAt;
+        this.notes = notes;
+    }
 
-   public String getDescription() {
-      return description;
-   }
+    public CreditCardInvoiceResponseDto getInvoice() {
+        return invoice;
+    }
 
-   public void setDescription(String description) {
-      this.description = description;
-   }
+    public void setInvoice(CreditCardInvoiceResponseDto invoice) {
+        this.invoice = invoice;
+    }
 
-   public Type getType() {
-      return type;
-   }
+    public CreditCardResponseDto getCreditCard() {
+        return creditCard;
+    }
 
-   public void setType(Type type) {
-      this.type = type;
-   }
+    public void setCreditCard(CreditCardResponseDto creditCard) {
+        this.creditCard = creditCard;
+    }
 
-   public CostCenterResponseDto getCostCenter() {
-      return costCenter;
-   }
+    public String getDescription() {
+        return description;
+    }
 
-   public void setCostCenter(CostCenterResponseDto costCenter) {
-      this.costCenter = costCenter;
-   }
+    public void setDescription(String description) {
+        this.description = description;
+    }
 
-   public Double getValue() {
-      return value;
-   }
+    public Type getType() {
+        return type;
+    }
 
-   public void setValue(Double value) {
-      this.value = value;
-   }
+    public void setType(Type type) {
+        this.type = type;
+    }
 
-   public String getNotes() {
-      return notes;
-   }
+    public CostCenterResponseDto getCostCenter() {
+        return costCenter;
+    }
 
-   public void setNotes(String notes) {
-      this.notes = notes;
-   }
+    public void setCostCenter(CostCenterResponseDto costCenter) {
+        this.costCenter = costCenter;
+    }
 
-   public Date getCreatedAt() {
-      return createdAt;
-   }
+    public Double getValue() {
+        return value;
+    }
 
-   public void setCreatedAt(Date createdAt) {
-      this.createdAt = createdAt;
-   }
+    public void setValue(Double value) {
+        this.value = value;
+    }
 
-   public Date getInativeAt() {
-      return inativeAt;
-   }
+    public String getNotes() {
+        return notes;
+    }
 
-   public void setInativeAt(Date inativeAt) {
-      this.inativeAt = inativeAt;
-   }
+    public void setNotes(String notes) {
+        this.notes = notes;
+    }
 
-   public Date getReferenceDate() {
-      return referenceDate;
-   }
+    public Date getCreatedAt() {
+        return createdAt;
+    }
 
-   public void setReferenceDate(Date referenceDate) {
-      this.referenceDate = referenceDate;
-   }
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public Date getInativeAt() {
+        return inativeAt;
+    }
+
+    public void setInativeAt(Date inativeAt) {
+        this.inativeAt = inativeAt;
+    }
+
+    public Date getReferenceDate() {
+        return referenceDate;
+    }
+
+    public void setReferenceDate(Date referenceDate) {
+        this.referenceDate = referenceDate;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 }

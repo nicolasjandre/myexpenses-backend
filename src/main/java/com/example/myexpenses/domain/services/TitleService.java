@@ -1,5 +1,7 @@
 package com.example.myexpenses.domain.services;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -13,9 +15,13 @@ import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import com.example.myexpenses.common.PageableCommon;
 import com.example.myexpenses.domain.enums.Type;
 import com.example.myexpenses.domain.exception.ResourceBadRequestException;
 import com.example.myexpenses.domain.exception.ResourceNotFoundException;
@@ -33,266 +39,297 @@ import com.example.myexpenses.dto.title.TitleResponseDto;
 @Service
 public class TitleService implements ICRUDService<TitleRequestDto, TitleResponseDto> {
 
-   @Autowired
-   private TitleRepository titleRepository;
+    @Autowired
+    private TitleRepository titleRepository;
 
-   @Autowired
-   private CreditCardInvoiceRepository creditCardInvoiceRepository;
+    @Autowired
+    private CreditCardInvoiceRepository creditCardInvoiceRepository;
 
-   @Autowired
-   private CreditCardInvoiceService cardInvoiceService;
+    @Autowired
+    private CreditCardInvoiceService cardInvoiceService;
 
-   @Autowired
-   private UserRepository userRepository;
+    @Autowired
+    private UserRepository userRepository;
 
-   @Autowired
-   private CreditCardRepository creditCardRepository;
+    @Autowired
+    private CreditCardRepository creditCardRepository;
 
-   @Autowired
-   private CreditCardService creditCardService;
+    @Autowired
+    private CreditCardService creditCardService;
 
-   @Autowired
-   private ModelMapper mapper;
+    @Autowired
+    private ModelMapper mapper;
 
-   @Override
-   public List<TitleResponseDto> getAll() {
-      User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    @Override
+    public List<TitleResponseDto> getAll() {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-      List<Title> titles = titleRepository.findByUser(user);
+        List<Title> titles = titleRepository.findByUser(user);
 
-      return titles.stream()
-            .map(title -> mapper.map(title, TitleResponseDto.class))
-            .collect(Collectors.toList());
-   }
+        return titles.stream()
+                .map(title -> mapper.map(title, TitleResponseDto.class))
+                .collect(Collectors.toList());
+    }
 
-   @Override
-   public TitleResponseDto getById(Long id) {
+    public Page<TitleResponseDto> getAllPaginated(Integer page, Integer size, Sort.Direction sort,
+            String property, String initialDate, String finalDate) {
 
-      Optional<Title> optTitle = titleRepository.findById(id);
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-      if (optTitle.isEmpty()) {
-         throw new ResourceNotFoundException("Não foi possível encontrar o título com o id: " + id);
-      }
+        SimpleDateFormat inputFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Date sqlDate1 = new Date();
+        Date sqlDate2 = new Date();
+        try {
+            java.util.Date utilDate1 = inputFormatter.parse(initialDate);
+            java.util.Date utilDate2 = inputFormatter.parse(finalDate);
 
-      User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            sqlDate1 = new Date(utilDate1.getTime());
+            sqlDate2 = new Date(utilDate2.getTime());
 
-      if (!optTitle.get().getUser().getId().equals(user.getId())) {
-         throw new ResourceNotFoundException("Não foi possível encontrar o título com o id: " + id);
-      }
+        } catch (ParseException e) {
+            System.out.println("Failed to parse date: " + e.getMessage());
+        }
 
-      return mapper.map(optTitle.get(), TitleResponseDto.class);
-   }
+        Pageable pageable = PageableCommon.create(page, size, sort, property);
 
-   @Override
-   public List<TitleResponseDto> create(TitleRequestDto dto) {
+        return titleRepository.findAllByUserPaginatedBetween(user.getId(), pageable, sqlDate1, sqlDate2);
+    }
 
-      if (Objects.isNull(dto.getCreditCardId())) {
-         return createWalletIncomeOrExpense(dto);
-      } else {
-         return createCreditCardExpense(dto);
-      }
+    @Override
+    public TitleResponseDto getById(Long id) {
 
-   }
+        Optional<Title> optTitle = titleRepository.findById(id);
 
-   public List<TitleResponseDto> createWalletIncomeOrExpense(TitleRequestDto dto) {
+        if (optTitle.isEmpty()) {
+            throw new ResourceNotFoundException("Não foi possível encontrar o título com o id: " + id);
+        }
 
-      List<Title> titles = new ArrayList<>();
-      User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-      titleValidation(dto, null, null);
+        if (!optTitle.get().getUser().getId().equals(user.getId())) {
+            throw new ResourceNotFoundException("Não foi possível encontrar o título com o id: " + id);
+        }
 
-      Title title = mapper.map(dto, Title.class);
-      title.setUser(user);
-      title.setCreatedAt(new Date());
+        return mapper.map(optTitle.get(), TitleResponseDto.class);
+    }
 
-      title = titleRepository.save(title);
-      titles.add(title);
+    @Override
+    public List<TitleResponseDto> create(TitleRequestDto dto) {
 
-      Double newUserBalance = 0.0;
+        if (Objects.isNull(dto.getCreditCardId())) {
+            return createWalletIncomeOrExpense(dto);
+        } else {
+            return createCreditCardExpense(dto);
+        }
 
-      if (dto.getType() == Type.INCOME) {
-         newUserBalance = user.getUserBalance() + dto.getValue();
-      } else if (dto.getType() == Type.EXPENSE) {
-         newUserBalance = user.getUserBalance() - dto.getValue();
-      }
+    }
 
-      user.setUserBalance(newUserBalance);
-      userRepository.save(user);
+    public List<TitleResponseDto> createWalletIncomeOrExpense(TitleRequestDto dto) {
 
-      return titles.stream()
-            .map(mappedTitle -> mapper.map(mappedTitle, TitleResponseDto.class))
-            .collect(Collectors.toList());
-   }
+        List<Title> titles = new ArrayList<>();
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-   public List<TitleResponseDto> createCreditCardExpense(TitleRequestDto dto) {
+        titleValidation(dto, null, null);
 
-      User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-      CreditCard creditCard = creditCardRepository.findById(dto.getCreditCardId()).get();
+        Title title = mapper.map(dto, Title.class);
+        title.setUser(user);
+        title.setCreatedAt(new Date());
 
-      titleValidation(dto, creditCard, user);
+        title = titleRepository.save(title);
+        titles.add(title);
 
-      List<Title> titles = new ArrayList<>();
-      Double remainingAmount = getRemainingAmountFromInstallments(dto);
-      int installment = dto.getInstallment();
-      int creditCardClosingDay = creditCard.getClosingDay();
+        Double newUserBalance = 0.0;
 
-      Instant instant = dto.getReferenceDate().toInstant();
-      LocalDate titleStartDate = instant.atZone(ZoneId.systemDefault()).toLocalDate();
+        if (dto.getType() == Type.INCOME) {
+            newUserBalance = user.getUserBalance() + dto.getValue();
+        } else if (dto.getType() == Type.EXPENSE) {
+            newUserBalance = user.getUserBalance() - dto.getValue();
+        }
 
-      cardInvoiceService.generateInvoicesWhenCreatingTitles(titleStartDate, installment, dto.getCreditCardId());
+        user.setUserBalance(newUserBalance);
+        userRepository.save(user);
 
-      for (int i = 1; i <= installment; i++) {
-         Title title = new Title();
-         Title titleDto = mapper.map(dto, Title.class);
+        return titles.stream()
+                .map(mappedTitle -> mapper.map(mappedTitle, TitleResponseDto.class))
+                .collect(Collectors.toList());
+    }
 
-         Date referenceDate = titleDto.getReferenceDate();
-         Calendar calendar = Calendar.getInstance();
-         calendar.setTime(referenceDate);
-         if (i != 1) {
-            calendar.add(Calendar.MONTH, i - 1);
-            referenceDate = calendar.getTime();
-         }
+    public List<TitleResponseDto> createCreditCardExpense(TitleRequestDto dto) {
 
-         Instant instantReferenceDate = referenceDate.toInstant();
-         LocalDate localReferenceDate = instantReferenceDate.atZone(ZoneId.systemDefault()).toLocalDate();
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        CreditCard creditCard = creditCardRepository.findById(dto.getCreditCardId()).get();
 
-         if (localReferenceDate.getDayOfMonth() >= creditCardClosingDay) {
-            localReferenceDate = localReferenceDate.plusMonths(1);
-         }
+        titleValidation(dto, creditCard, user);
 
-         CreditCardInvoice invoice = creditCardInvoiceRepository
-               .findByCreditCardAndDueDate(creditCard, localReferenceDate.withDayOfMonth(creditCard.getDueDay()));
+        List<Title> titles = new ArrayList<>();
+        Double remainingAmount = getRemainingAmountFromInstallments(dto);
+        int installment = dto.getInstallment();
+        int creditCardClosingDay = creditCard.getClosingDay();
 
-         Double formattedInstallmentValue = Math.round((dto.getValue() / installment) * 100.0) / 100.0;
+        Instant instant = dto.getReferenceDate().toInstant();
+        LocalDate titleStartDate = instant.atZone(ZoneId.systemDefault()).toLocalDate();
 
-         if (remainingAmount > 0) {
-            formattedInstallmentValue += 0.01;
-            remainingAmount -= 0.01;
-         }
+        cardInvoiceService.generateInvoicesWhenCreatingTitles(titleStartDate, installment, dto.getCreditCardId());
 
-         String titleDescription = installment > 1
-               ? titleDto.getDescription() + " (" + i + ")"
-               : titleDto.getDescription();
+        for (int i = 1; i <= installment; i++) {
+            Title title = new Title();
+            Title titleDto = mapper.map(dto, Title.class);
 
-         title.setDescription(titleDescription);
-         title.setCreatedAt(new Date());
-         title.setValue(formattedInstallmentValue);
-         title.setUser(user);
-         title.setInvoice(invoice);
-         title.setCostCenter(titleDto.getCostCenter());
-         title.setType(titleDto.getType());
-         title.setReferenceDate(titleDto.getReferenceDate());
-         title.setCreditCard(creditCard);
-         title.setNotes(titleDto.getNotes());
+            Date referenceDate = titleDto.getReferenceDate();
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(referenceDate);
+            if (i != 1) {
+                calendar.add(Calendar.MONTH, i - 1);
+                referenceDate = calendar.getTime();
+            }
 
-         title = titleRepository.save(title);
-         titles.add(title);
-      }
+            Instant instantReferenceDate = referenceDate.toInstant();
+            LocalDate localReferenceDate = instantReferenceDate.atZone(ZoneId.systemDefault()).toLocalDate();
 
-      creditCardService.updateCreditCardLimitWhenCreatingTitles(creditCard);
+            if (localReferenceDate.getDayOfMonth() >= creditCardClosingDay) {
+                localReferenceDate = localReferenceDate.plusMonths(1);
+            }
 
-      return titles.stream()
-            .map(mappedTitle -> mapper.map(mappedTitle, TitleResponseDto.class))
-            .collect(Collectors.toList());
-   }
+            CreditCardInvoice invoice = creditCardInvoiceRepository
+                    .findByCreditCardAndDueDate(creditCard, localReferenceDate.withDayOfMonth(creditCard.getDueDay()));
 
-   @Override
-   public TitleResponseDto update(Long id, TitleRequestDto dto) {
+            Double formattedInstallmentValue = Math.round((dto.getValue() / installment) * 100.0) / 100.0;
 
-      TitleResponseDto titleDatabase = getById(id);
+            if (remainingAmount > 0) {
+                formattedInstallmentValue += 0.01;
+                remainingAmount -= 0.01;
+            }
 
-      titleValidation(dto, null, null);
+            String titleDescription = installment > 1
+                    ? titleDto.getDescription() + " (" + i + ")"
+                    : titleDto.getDescription();
 
-      Title title = mapper.map(dto, Title.class);
+            Date referenceDateForTitle = dto.getReferenceDate();
+            Calendar calendarForTitle = Calendar.getInstance();
+            calendarForTitle.setTime(referenceDateForTitle);
+            calendarForTitle.add(Calendar.MONTH, i - 1); // Add 1 month to the reference date
+            referenceDateForTitle = calendarForTitle.getTime();
 
-      User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            title.setDescription(titleDescription);
+            title.setCreatedAt(new Date());
+            title.setValue(formattedInstallmentValue);
+            title.setUser(user);
+            title.setInvoice(invoice);
+            title.setCostCenter(titleDto.getCostCenter());
+            title.setType(titleDto.getType());
+            title.setReferenceDate(referenceDateForTitle);
+            title.setCreditCard(creditCard);
+            title.setNotes(titleDto.getNotes());
 
-      title.setUser(user);
-      title.setInativeAt(titleDatabase.getInativeAt());
-      title.setId(id);
-      title = titleRepository.save(title);
+            title = titleRepository.save(title);
+            titles.add(title);
+        }
 
-      return mapper.map(title, TitleResponseDto.class);
-   }
+        creditCardService.updateCreditCardLimitWhenCreatingTitles(creditCard);
 
-   @Override
-   public void delete(Long id) {
+        return titles.stream()
+                .map(mappedTitle -> mapper.map(mappedTitle, TitleResponseDto.class))
+                .collect(Collectors.toList());
+    }
 
-      TitleResponseDto titleDto = getById(id);
+    @Override
+    public TitleResponseDto update(Long id, TitleRequestDto dto) {
 
-      Title title = mapper.map(titleDto, Title.class);
+        TitleResponseDto titleDatabase = getById(id);
 
-      title.setInativeAt(new Date());
+        titleValidation(dto, null, null);
 
-      titleRepository.save(title);
-   }
+        Title title = mapper.map(dto, Title.class);
 
-   public List<TitleResponseDto> getCashFlowByDueDate(Date initialDate, Date finalDate) {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-      User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        title.setUser(user);
+        title.setInativeAt(titleDatabase.getInativeAt());
+        title.setId(id);
+        title = titleRepository.save(title);
 
-      Long userId = user.getId();
+        return mapper.map(title, TitleResponseDto.class);
+    }
 
-      List<Title> titles = titleRepository.findByReferenceDateBetweenAndUserId(initialDate, finalDate, userId);
+    @Override
+    public void delete(Long id) {
 
-      return titles.stream()
-            .map(title -> mapper.map(title, TitleResponseDto.class))
-            .collect(Collectors.toList());
-   }
+        TitleResponseDto titleDto = getById(id);
 
-   public List<TitleResponseDto> getTitlesByInvoiceDueDate(Date initialDate, Date finalDate) {
+        Title title = mapper.map(titleDto, Title.class);
 
-      User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        title.setInativeAt(new Date());
 
-      Long userId = user.getId();
+        titleRepository.save(title);
+    }
 
-      List<Title> titles = titleRepository.findByInvoiceDueDateBetweenAndUserId(initialDate, finalDate, userId);
+    public List<TitleResponseDto> getCashFlowByDueDate(Date initialDate, Date finalDate) {
 
-      return titles.stream()
-            .map(title -> mapper.map(title, TitleResponseDto.class))
-            .collect(Collectors.toList());
-   }
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-   public List<TitleResponseDto> getLastDaysTitles(Long days) {
-      User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Long userId = user.getId();
 
-      Long userId = user.getId();
+        List<Title> titles = titleRepository.findByReferenceDateBetweenAndUserId(initialDate, finalDate, userId);
 
-      List<Title> titles = titleRepository.findByLastXDays(days, userId);
+        return titles.stream()
+                .map(title -> mapper.map(title, TitleResponseDto.class))
+                .collect(Collectors.toList());
+    }
 
-      return titles.stream()
-            .map(title -> mapper.map(title, TitleResponseDto.class))
-            .collect(Collectors.toList());
-   }
+    public List<TitleResponseDto> getTitlesByInvoiceDueDate(Date initialDate, Date finalDate) {
 
-   private void titleValidation(TitleRequestDto dto, CreditCard creditCard, User user) {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-      if (creditCard != null && (dto.getType() == Type.EXPENSE && !creditCard.getUser().getId().equals(user.getId()))) {
-         throw new ResourceBadRequestException("Você não pode alterar dados de outros usuários.");
-      }
+        Long userId = user.getId();
 
-      if (dto.getInstallment() > 99) {
-         throw new ResourceBadRequestException("O número máximo de prestações é 99.");
-      }
+        List<Title> titles = titleRepository.findByInvoiceDueDateBetweenAndUserId(initialDate, finalDate, userId);
 
-      if (dto.getValue() == null || dto.getValue() == 0 ||
+        return titles.stream()
+                .map(title -> mapper.map(title, TitleResponseDto.class))
+                .collect(Collectors.toList());
+    }
 
-            dto.getDescription() == null || dto.getType() == null) {
+    public List<TitleResponseDto> getLastDaysTitles(Long days) {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-         throw new ResourceNotFoundException(
-               "Os campos título, data de vencimento, valor e descrição são obrigatórios.");
-      } else if (dto.getValue() < 0) {
+        Long userId = user.getId();
 
-         dto.setValue(-(dto.getValue()));
-      }
-   }
+        List<Title> titles = titleRepository.findByLastXDays(days, userId);
 
-   private Double getRemainingAmountFromInstallments(TitleRequestDto dto) {
-      int installment = dto.getInstallment();
-      Double formattedInstallmentValue = Math.round((dto.getValue() / installment) * 100.0) / 100.0;
-      Double totalInstallmentsValue = formattedInstallmentValue * installment;
-      Double remainingAmount = dto.getValue() - totalInstallmentsValue;
+        return titles.stream()
+                .map(title -> mapper.map(title, TitleResponseDto.class))
+                .collect(Collectors.toList());
+    }
 
-      return remainingAmount;
-   }
+    private void titleValidation(TitleRequestDto dto, CreditCard creditCard, User user) {
+
+        if (creditCard != null
+                && (dto.getType() == Type.EXPENSE && !creditCard.getUser().getId().equals(user.getId()))) {
+            throw new ResourceBadRequestException("Você não pode alterar dados de outros usuários.");
+        }
+
+        if (dto.getInstallment() > 99) {
+            throw new ResourceBadRequestException("O número máximo de prestações é 99.");
+        }
+
+        if (dto.getValue() == null || dto.getValue() == 0 ||
+
+                dto.getDescription() == null || dto.getType() == null) {
+
+            throw new ResourceNotFoundException(
+                    "Os campos título, data de vencimento, valor e descrição são obrigatórios.");
+        } else if (dto.getValue() < 0) {
+
+            dto.setValue(-(dto.getValue()));
+        }
+    }
+
+    private Double getRemainingAmountFromInstallments(TitleRequestDto dto) {
+        int installment = dto.getInstallment();
+        Double formattedInstallmentValue = Math.round((dto.getValue() / installment) * 100.0) / 100.0;
+        Double totalInstallmentsValue = formattedInstallmentValue * installment;
+        Double remainingAmount = dto.getValue() - totalInstallmentsValue;
+
+        return remainingAmount;
+    }
 }

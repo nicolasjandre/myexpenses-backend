@@ -1,11 +1,11 @@
-package com.example.myexpenses.dto.creditCard;
+package com.example.myexpenses.dto.creditcard;
+
+import java.util.Date;
 
 import com.example.myexpenses.domain.enums.Bank;
 import com.example.myexpenses.domain.enums.CardFlag;
-import com.example.myexpenses.domain.model.User;
 
-public class CreditCardRequestDto {
-
+public class CreditCardResponseDto {
    private Long id;
 
    private String name;
@@ -22,7 +22,28 @@ public class CreditCardRequestDto {
 
    private int dueDay;
 
-   private User user;
+   private Date inativeAt;
+
+   public CreditCardResponseDto() {
+   }
+
+   public CreditCardResponseDto(Long id, String name, Double creditLimit, Double availableLimit, CardFlag flag,
+         Bank bank, int closingDay, int dueDay, Date inativeAt) {
+      this.id = id;
+      this.name = name;
+      this.creditLimit = creditLimit;
+      this.availableLimit = availableLimit;
+      this.flag = flag;
+      this.bank = bank;
+      this.closingDay = closingDay;
+      this.dueDay = dueDay;
+      this.inativeAt = inativeAt;
+   }
+
+   public CreditCardResponseDto(Long id, String name) {
+      this.id = id;
+      this.name = name;
+   }
 
    public Long getId() {
       return id;
@@ -56,14 +77,6 @@ public class CreditCardRequestDto {
       this.bank = bank;
    }
 
-   public User getUser() {
-      return user;
-   }
-
-   public void setUser(User user) {
-      this.user = user;
-   }
-
    public Double getAvailableLimit() {
       return availableLimit;
    }
@@ -88,6 +101,14 @@ public class CreditCardRequestDto {
       this.closingDay = closingDay;
    }
 
+   public Date getInativeAt() {
+      return inativeAt;
+   }
+
+   public void setInativeAt(Date inativeAt) {
+      this.inativeAt = inativeAt;
+   }
+
    public int getDueDay() {
       return dueDay;
    }
@@ -95,4 +116,6 @@ public class CreditCardRequestDto {
    public void setDueDay(int dueDay) {
       this.dueDay = dueDay;
    }
+
+   
 }

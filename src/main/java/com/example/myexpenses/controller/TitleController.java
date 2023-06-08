@@ -3,10 +3,14 @@ package com.example.myexpenses.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.myexpenses.domain.services.TitleService;
@@ -28,6 +32,19 @@ public class TitleController implements ICRUDController<TitleRequestDto, TitleRe
    public ResponseEntity<List<TitleResponseDto>> getAll() {
 
       return ResponseEntity.ok(titleService.getAll());
+   }
+
+   @GetMapping("/paginated")
+   @Operation(summary = "Get all titles that were created by the user who is requesting paginated.")
+   public ResponseEntity<Page<TitleResponseDto>> getAllPaginated(
+         @RequestParam(name = "initialDate") String initialDate,
+         @RequestParam(name = "finalDate") String finalDate,
+         @RequestParam Integer page,
+         @RequestParam Integer size,
+         @RequestParam(value = "sort", required = false) Sort.Direction sort,
+         @RequestParam(value = "property", required = false) String property) {
+
+      return ResponseEntity.ok(titleService.getAllPaginated(page, size, sort, property, initialDate, finalDate));
    }
 
    @Override

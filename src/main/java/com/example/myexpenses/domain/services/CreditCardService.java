@@ -20,8 +20,8 @@ import com.example.myexpenses.domain.repository.CreditCardRepository;
 import com.example.myexpenses.domain.repository.TitleRepository;
 import com.example.myexpenses.dto.BankDto;
 import com.example.myexpenses.dto.CardFlagDto;
-import com.example.myexpenses.dto.creditCard.CreditCardRequestDto;
-import com.example.myexpenses.dto.creditCard.CreditCardResponseDto;
+import com.example.myexpenses.dto.creditcard.CreditCardRequestDto;
+import com.example.myexpenses.dto.creditcard.CreditCardResponseDto;
 
 @Service
 public class CreditCardService {

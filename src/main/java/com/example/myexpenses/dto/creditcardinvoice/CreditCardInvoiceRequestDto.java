@@ -1,4 +1,4 @@
-package com.example.myexpenses.dto.creditCardInvoice;
+package com.example.myexpenses.dto.creditcardinvoice;
 
 import java.time.LocalDate;
 import java.util.List;
