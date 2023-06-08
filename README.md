@@ -1,8 +1,8 @@
 <h1 align="center">my expenses<span style="color: red">.</span></h1>
 
-
 <p align="center">Personal expenses backend project made in Java and Spring Boot 3.0.5. It has complete documentation with Swagger and JWT + refresh token.
 
+<p align="center"><img src="./.github/banner.png" alt="Projcet Banner"></p>
 <hr>
 <h2 align="center">Database</h2>
 <hr>
